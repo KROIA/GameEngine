@@ -15,6 +15,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# SFML stuff
+sfml_version      = "2.5.1"
+
+sfml_basePath     = "../../SFML-$$sfml_version"
+sfml_includePath  = "$$sfml_basePath/include"
+sfml_binPath      = "$$sfml_basePath/bin"
+sfml_libs_debug   = "$$sfml_binPath/Debug/lib/libsfml-audio-d.a" \
+                    "$$sfml_binPath/Debug/lib/libsfml-graphics-d.a" \
+                    "$$sfml_binPath/Debug/lib/libsfml-main-d.a" \
+                    "$$sfml_binPath/Debug/lib/libsfml-network-d.a" \
+                    "$$sfml_binPath/Debug/lib/libsfml-system-d.a" \
+                    "$$sfml_binPath/Debug/lib/libsfml-window-d.a"
+
+sfml_libs_release = "$$sfml_binPath/Release/lib/libsfml-audio.a" \
+                    "$$sfml_binPath/Release/lib/libsfml-graphics.a" \
+                    "$$sfml_binPath/Release/lib/libsfml-main.a" \
+                    "$$sfml_binPath/Release/lib/libsfml-network.a" \
+                    "$$sfml_binPath/Release/lib/libsfml-system.a" \
+                    "$$sfml_binPath/Release/lib/libsfml-window.a"
+
+
+CONFIG(release, debug|release): sfml_libs = $$sfml_libs_release
+CONFIG(debug, debug|release):   sfml_libs = $$sfml_libs_debug
+# End SFML stuff
+
+INCLUDEPATH += $$sfml_includePath
+DEPENDPATH  += $$sfml_includePath
+LIBS        += $$sfml_libs
+
+
 SOURCES += \
     main.cpp \
     mainwindow.cpp
