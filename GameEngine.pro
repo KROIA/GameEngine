@@ -39,17 +39,39 @@ sfml_libs_release = "$$sfml_binPath/Release/lib/libsfml-audio.a" \
 CONFIG(release, debug|release): sfml_libs = $$sfml_libs_release
 CONFIG(debug, debug|release):   sfml_libs = $$sfml_libs_debug
 # End SFML stuff
+srcPath = src
+incPath = inc
 
-INCLUDEPATH += $$sfml_includePath
+INCLUDEPATH += $$sfml_includePath \
+               $$incPath \
+               $$incPath/GameObjects \
+               $$incPath/base
 DEPENDPATH  += $$sfml_includePath
 LIBS        += $$sfml_libs
 
 
+
 SOURCES += \
+    $$srcPath/base/EngineBase.cpp \
+    $$srcPath/base/physics.cpp \
+    $$srcPath/base/collider.cpp \
+    $$srcPath/base/controller.cpp \
+    $$srcPath/base/painter.cpp \
+    $$srcPath/GameEngine.cpp \
+    $$srcPath/GameObjects/GameObject.cpp \
     main.cpp \
     mainwindow.cpp
 
+
+
 HEADERS += \
+    $$incPath/base/EngineBase.h \
+    $$incPath/base/physics.h \
+    $$incPath/base/collider.h \
+    $$incPath/base/controller.h \
+    $$incPath/base/painter.h \
+    $$incPath/GameEngine.h \
+    $$incPath/GameObjects/GameObject.h \
     mainwindow.h
 
 FORMS += \
