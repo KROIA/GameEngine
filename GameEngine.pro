@@ -44,37 +44,42 @@ incPath = inc
 
 INCLUDEPATH += $$sfml_includePath \
                $$incPath \
-               $$incPath/GameObjects \
-               $$incPath/base \
-               $$incPath/GameObjects/base
+               $$incPath/utility
+			   
 DEPENDPATH  += $$sfml_includePath
 LIBS        += $$sfml_libs
 
 
 
 SOURCES += \
-    $$srcPath/base/EngineMisc.cpp \
-    $$srcPath/base/physics.cpp \
-    $$srcPath/base/timer.cpp \
-    $$srcPath/GameEngine.cpp \
-    $$srcPath/GameObjects/base/collider.cpp \
-    $$srcPath/GameObjects/base/controller.cpp \
-    $$srcPath/GameObjects/base/painter.cpp \
-    $$srcPath/GameObjects/GameObject.cpp \
+    $$srcPath/gameEngine.cpp \
+	$$srcPath/utility/vector.cpp \
+	$$srcPath/utility/timer.cpp \
+    $$srcPath/collider.cpp \
+	$$srcPath/cubeCollider.cpp \
+	$$srcPath/circleCollider.cpp \
+    $$srcPath/controller.cpp \
+	$$srcPath/keyController.cpp \
+	$$srcPath/gravityController.cpp \
+    $$srcPath/painter.cpp \
+    $$srcPath/gameObject.cpp \
     main.cpp \
     mainwindow.cpp
 
 
 
 HEADERS += \
-    $$incPath/base/EngineMisc.h \
-    $$incPath/base/physics.h \
-    $$incPath/GameEngine.h \
-    $$incPath/GameObjects/base/collider.h \
-    $$incPath/GameObjects/base/controller.h \
-    $$incPath/GameObjects/base/painter.h \
-    $$incPath/GameObjects/GameObject.h \
-    $$incPath/base/timer.h \
+    $$incPath/gameEngine.h \
+    $$incPath/utility/vector.h \
+    $$incPath/utility/timer.h \
+    $$incPath/collider.h \
+    $$incPath/cubeCollider.h \
+    $$incPath/circleCollider.h \
+    $$incPath/controller.h \
+    $$incPath/keyController.h \
+	$$incPath/gravityController.h \
+	$$incPath/painter.h \
+	$$incPath/gameObject.h \
     mainwindow.h
 
 FORMS += \
