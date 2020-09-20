@@ -5,7 +5,7 @@ namespace Physics
     namespace Constants
     {
         //double const gForce = -9.81;
-        const Force gForce{.force = -9.81,.direction = coordinateF(0,-1)};
+        const Force gForce{.force = -9.81*0.1,.direction = coordinateF(0,-1)};
         const Velocity gVelocity{.velocity = gForce.force,};
     }
 
@@ -26,17 +26,26 @@ namespace Physics
 
     void applyForce(Controller *controller, Force force)
     {
+        // F = m*a
         // 1N = 1kg*m/s^2   --> m/s^2 = 1N/kg
+
         Velocity acceleration;
         acceleration.direction = force.direction;
-        acceleration.velocity = EngineBase::updateDurationTime * force.force/controller->getMass();
+         acceleration.velocity = force.force;
+        //acceleration.velocity = (force.force/controller->getMass())/EngineMisc::physicsTicksPerSecond;
+
+
 
         controller->setVelocity(velocity_add(controller->getVelocity(),acceleration));
+
+        qDebug() << "deltaV: "<<acceleration.velocity << "\t V:"<<controller->getVelocity().direction.y;
     }
     void applyGravity(Controller *controller)
     {
         if(controller->gravity())
         {
+            Force F = Constants::gForce;
+            F.force *= controller->getMass();
             applyForce(controller,Constants::gForce);
         }
     }

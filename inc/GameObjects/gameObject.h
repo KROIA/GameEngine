@@ -1,6 +1,6 @@
 #ifndef  GAMEOBJECT_H
 #define  GAMEOBJECT_H
-#include "EngineBase.h"
+#include "EngineMisc.h"
 
 #include "collider.h"
 #include "painter.h"

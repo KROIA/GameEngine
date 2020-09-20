@@ -1,7 +1,7 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-#include "EngineBase.h"
+#include "EngineMisc.h"
 #include "collider.h"
 #include "controller.h"
 #include <SFML/Graphics/Rect.hpp>
@@ -22,6 +22,8 @@ namespace Physics
     extern void applyGravity(Controller *controller);
 
     extern Velocity velocity_add(Velocity vel1,Velocity vel2);
+
+
 
 };
 #endif // PHYSICS_H

@@ -27,7 +27,7 @@ GameObject::GameObject()
 
 GameObject::~GameObject()
 {
-    //EngineBase::__deleteLater(TYPE_TAG_GAMEOBJECT,m_ID);
+    //EngineMisc::__deleteLater(TYPE_TAG_GAMEOBJECT,m_ID);
 }
 void GameObject::update()
 {

@@ -45,19 +45,21 @@ incPath = inc
 INCLUDEPATH += $$sfml_includePath \
                $$incPath \
                $$incPath/GameObjects \
-               $$incPath/base
+               $$incPath/base \
+               $$incPath/GameObjects/base
 DEPENDPATH  += $$sfml_includePath
 LIBS        += $$sfml_libs
 
 
 
 SOURCES += \
-    $$srcPath/base/EngineBase.cpp \
+    $$srcPath/base/EngineMisc.cpp \
     $$srcPath/base/physics.cpp \
-    $$srcPath/base/collider.cpp \
-    $$srcPath/base/controller.cpp \
-    $$srcPath/base/painter.cpp \
+    $$srcPath/base/timer.cpp \
     $$srcPath/GameEngine.cpp \
+    $$srcPath/GameObjects/base/collider.cpp \
+    $$srcPath/GameObjects/base/controller.cpp \
+    $$srcPath/GameObjects/base/painter.cpp \
     $$srcPath/GameObjects/GameObject.cpp \
     main.cpp \
     mainwindow.cpp
@@ -65,13 +67,14 @@ SOURCES += \
 
 
 HEADERS += \
-    $$incPath/base/EngineBase.h \
+    $$incPath/base/EngineMisc.h \
     $$incPath/base/physics.h \
-    $$incPath/base/collider.h \
-    $$incPath/base/controller.h \
-    $$incPath/base/painter.h \
     $$incPath/GameEngine.h \
+    $$incPath/GameObjects/base/collider.h \
+    $$incPath/GameObjects/base/controller.h \
+    $$incPath/GameObjects/base/painter.h \
     $$incPath/GameObjects/GameObject.h \
+    $$incPath/base/timer.h \
     mainwindow.h
 
 FORMS += \

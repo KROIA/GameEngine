@@ -1,7 +1,7 @@
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
-#include "EngineBase.h"
+#include "EngineMisc.h"
 #include "physics.h"
 
 #include "gameObject.h"
@@ -67,8 +67,11 @@ private:
 
     GameObject m_object;
     GameObject m_object_2;
+    GameObject m_ground;
 
     //Timing
+    Timer m_frameUpdateTimer;
+    Timer m_physicsUpdateTimer;
     std::chrono::high_resolution_clock::time_point m_timer1_start;
     std::chrono::high_resolution_clock::time_point m_timer1_end;
     std::chrono::duration<double> m_time1_span;
