@@ -9,7 +9,7 @@ class Timer
 {
 public:
     Timer();
-    ~Timer();
+    virtual ~Timer();
 
     // Starts the timer.
     // Returns true, if the time is over, otherwise false

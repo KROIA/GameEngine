@@ -1,8 +1,14 @@
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
-#include "EngineMisc.h"
-#include "physics.h"
+#include <windows.h>
+#include <iostream>
+#include <stdio.h>
+
+#include <SFML/Graphics.hpp>
+#include "timer.h"
+#include "vector.h"
+#include "vectorFunction.h"
 
 #include "gameObject.h"
 
@@ -10,74 +16,81 @@
 
 class GameEngine
 {
-public:
-    GameEngine();
+    public:
+        GameEngine(unsigned int width, unsigned int height,const std::string &windowname);
+        virtual ~GameEngine();
 
-    ~GameEngine();
+        virtual void start();
+        virtual void stop();
 
-    // Window
-    void setWindowSize(coordinateU windowSize);
-    void setWindowName(string name);
-    void close();
-    bool isRunning();
+        static void user_loop();        // is called as often as possible
+        static void user_tickLoop();    // is called once a tick (before the engine calculates the next tick)
+        static void user_loop_timer_1();// is called depending on its time
+        static void user_loop_timer_2();// ...
+        static void user_loop_timer_3();// ...
+        static void user_loop_timer_4();// ...
+        static void user_loop_timer_5();// ...
 
-    // Game
-    void update();      // Updates one gametick
+        virtual void setWindowSize(unsigned int width,unsigned int height);
+        virtual sf::Vector2u getWindowSize() const;
+        virtual void setWindowName(const std::string &name);
+        virtual std::string getWindowName() const;
+        virtual void setBackgroundColor(sf::Color color);
+        virtual void setTickInterval(double sec);
+        virtual void setDisplayInterval(double sec);
+        virtual void set_userTimer_1(double sec);
+        virtual void set_userTimer_2(double sec);
+        virtual void set_userTimer_3(double sec);
+        virtual void set_userTimer_4(double sec);
+        virtual void set_userTimer_5(double sec);
+        virtual void set_userTimer_1_enable(bool enable);
+        virtual void set_userTimer_2_enable(bool enable);
+        virtual void set_userTimer_3_enable(bool enable);
+        virtual void set_userTimer_4_enable(bool enable);
+        virtual void set_userTimer_5_enable(bool enable);
 
+        virtual unsigned long long getCurrentTick() const;
+        virtual double getTickUpdateTime() const;
 
-
-    void setMapSize(coordinate mapsize);
-
-    // Graphics
-    void setBackgroundColor(sf::Color color);
-
-
-
-private:
-    void checkCollision();
-    void calculatePhysics();
-
-    // Window
-    void updateSettings();
-    bool m_settingsSkipUpdate;
-    coordinateU m_windowSize; // Windowsize (width = x)
-    string m_windowName;                    //
-    sf::RenderWindow *m_renderWindow;       // SFML Window Object
-    bool m_isRunning;
-    // Boarder
-    vector<Collider*> m_boarder;
-
-    // Events
-    void handleEvent();
-    void handleKeyEvent(sf::Event &event);
-
-
-    // Gamesettings
-    coordinate m_mapSize;    // Size of the gameWorld
+        virtual void addGameObject(GameObject *obj);
+        virtual void setSimulationsTimeMultiplyer(double factor);
 
 
 
-    // Graphics
-    void updateGraphics();
-    coordinate  m_graphicsScale;
-    sf::Texture m_backgroundTexture;        // Background pixelmap
-    sf::Image   m_backgroundImage;          //
-    sf::Sprite  m_backgroundSprite;         //
-    sf::Color   m_backgroundColor;          //
+    protected:
 
-    GameObject m_object;
-    GameObject m_object_2;
-    GameObject m_ground;
+        virtual void tick();
+        virtual void move();
+        virtual void checkCollision();
+        virtual void draw();
+        virtual void handleEvents();
 
-    //Timing
-    Timer m_frameUpdateTimer;
-    Timer m_physicsUpdateTimer;
-    std::chrono::high_resolution_clock::time_point m_timer1_start;
-    std::chrono::high_resolution_clock::time_point m_timer1_end;
-    std::chrono::duration<double> m_time1_span;
+        virtual void handleUserTimer();
 
-    // Garbagehandle
-    static void __deleteTargets();
+
+
+        bool m_engineRunning;
+        Timer m_userTimer_1; double m_userTimer_1_Interval; bool m_userTimer_1_enable;
+        Timer m_userTimer_2; double m_userTimer_2_Interval; bool m_userTimer_2_enable;
+        Timer m_userTimer_3; double m_userTimer_3_Interval; bool m_userTimer_3_enable;
+        Timer m_userTimer_4; double m_userTimer_4_Interval; bool m_userTimer_4_enable;
+        Timer m_userTimer_5; double m_userTimer_5_Interval; bool m_userTimer_5_enable;
+
+        Timer m_tickTimer; double m_tickInterval;
+        Timer m_displayTimer; double m_displayInterval;
+        double m_simulationsTimeMultiplyer;
+
+        sf::RenderWindow *m_renderWindow;
+        sf::View m_windowView;
+        sf::Vector2u m_windowSize;
+        std::string m_windowName;
+        sf::Color m_backgroundColor;
+
+        std::vector<GameObject*> m_gameObjectList;
+
+    private:
+        unsigned long long m_currentTick;
+
+
 };
-
-#endif // GAMEENGINE_H
+#endif

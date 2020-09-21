@@ -1,213 +1,192 @@
 #include "GameEngine.h"
 
-
-GameEngine::GameEngine()
+GameEngine::GameEngine(unsigned int width, unsigned int height,const std::string &windowname)
 {
-    m_settingsSkipUpdate = true;
-    m_isRunning = true;
+    m_engineRunning = false;
+    this->setTickInterval(0.02); // 20ms
+    this->setDisplayInterval(0.02); // 20ms
+    this->setSimulationsTimeMultiplyer(1);
 
-    this->setWindowSize(coordinateU(500,500));
-    this->setWindowName("GameEngine window name");
+    this->set_userTimer_1(1); this->set_userTimer_1_enable(false);
+    this->set_userTimer_2(2); this->set_userTimer_2_enable(false);
+    this->set_userTimer_3(3); this->set_userTimer_3_enable(false);
+    this->set_userTimer_4(4); this->set_userTimer_4_enable(false);
+    this->set_userTimer_5(5); this->set_userTimer_5_enable(false);
 
-    m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y), m_windowName);
-
-    this->setMapSize(coordinate(100,100));
-
-
-
-    this->setBackgroundColor(sf::Color(0,150,150));
-
-
-    m_settingsSkipUpdate = false;
-    m_object.getController()->gravity(true);
-    m_object.getController()->setPosition(coordinate(8,8));
-    m_object.getController()->setSize(coordinateU(10,10));
-
-    m_object_2.getController()->gravity(true);
-    m_object_2.getController()->setPosition(coordinate(40,90));
-    m_object_2.getController()->setSize(coordinateU(20,5));
-
-/*Collider test;
-    Collider test2;
-    test = test2;*/
-
-    m_boarder.push_back(new Collider());
-    m_boarder.push_back(new Collider());
-    m_boarder.push_back(new Collider());
-    m_boarder.push_back(new Collider());
+    setBackgroundColor(sf::Color(50,50,50));
 
 
 
-    unsigned int boarderThickness = 1000;
-    m_boarder[0]->setSize(coordinateU(m_mapSize.x + 2*boarderThickness,boarderThickness)); // top
-    m_boarder[1]->setSize(coordinateU(boarderThickness,m_mapSize.y)); // right
-    m_boarder[2]->setSize(coordinateU(m_mapSize.x + 2*boarderThickness,boarderThickness)); // bottom
-    m_boarder[3]->setSize(coordinateU(boarderThickness,m_mapSize.y)); // left
+    m_renderWindow = new sf::RenderWindow(sf::VideoMode(width,height), windowname);
+    m_windowView = m_renderWindow->getView();
 
-    m_boarder[0]->setPosition(coordinate(-boarderThickness,-boarderThickness));
-    m_boarder[1]->setPosition(coordinate(m_mapSize.x,0));
-    m_boarder[2]->setPosition(coordinate(-boarderThickness,m_mapSize.y));
-    m_boarder[3]->setPosition(coordinate(-boarderThickness,0));
-
-    m_ground.getController()->setSize(coordinateU(m_mapSize.x + 2*boarderThickness,boarderThickness));
-    m_ground.getController()->setPosition(coordinate(50,50));
-
-    this->updateSettings();
-    m_timer1_start  = std::chrono::high_resolution_clock::now();
-    m_timer1_end  = std::chrono::high_resolution_clock::now();
-
-    m_frameUpdateTimer.setAutorestart(true);
-    m_physicsUpdateTimer.setAutorestart(true);
+    this->setWindowSize(width,height);
+    this->setWindowName(windowname);
 }
-
 GameEngine::~GameEngine()
 {
-    this->close();
-    delete m_renderWindow;
+    for(size_t i=0; i<m_gameObjectList.size(); i++)
+    {
+        delete m_gameObjectList[i];
+    }
+    m_gameObjectList.clear();
 }
 
-void GameEngine::setWindowSize(coordinateU windowSize)
+void GameEngine::start()
 {
-    m_windowSize = windowSize;
-    this->updateSettings();
+    qDebug() << "start engine";
+    m_engineRunning = true;
+    while(m_engineRunning)
+    {
+        this->user_loop();
+        this->handleUserTimer();
+        if(m_tickTimer.start(m_tickInterval))
+        {
+            this->user_tickLoop();
+            this->tick();
+        }
+        if(m_displayTimer.start(m_displayInterval))
+        {
+            this->draw();
+        }
+    }
 }
-void GameEngine::setWindowName(string name)
+void GameEngine::stop()
+{
+    qDebug() << "stop engine";
+    m_renderWindow->close();
+    m_engineRunning = false;
+}
+void GameEngine::setWindowSize(unsigned int width,unsigned int height)
+{
+    m_windowSize.x = width;
+    m_windowSize.y = height;
+    m_windowView.setSize(width,height);
+
+    m_renderWindow->setView(m_windowView);
+    m_renderWindow->setSize(m_windowSize);
+}
+sf::Vector2u GameEngine::getWindowSize() const
+{
+    return m_windowSize;
+}
+void GameEngine::setWindowName(const std::string &name)
 {
     m_windowName = name;
-    this->updateSettings();
+    m_renderWindow->setTitle(m_windowName);
 }
-bool GameEngine::isRunning()
+std::string GameEngine::getWindowName() const
 {
-    return m_isRunning;
+    return m_windowName;
 }
-void GameEngine::close()
-{
-    m_renderWindow->close();
-}
-void GameEngine::update()
-{
-    // Only update on a specific timeinterval
-
-    if(m_physicsUpdateTimer.start(1.0/EngineMisc::physicsTicksPerSecond))
-    {
-        this->handleEvent();
-
-
-        this->calculatePhysics();
-        this->checkCollision();
-
-        /*m_timer1_end  = std::chrono::high_resolution_clock::now();
-        m_time1_span   = std::chrono::duration_cast<std::chrono::microseconds>(m_timer1_end - m_timer1_start);
-
-        if(m_time1_span.count() > 0.000000001 && EngineMisc::sycle) //sycle > 0
-        {
-            EngineMisc::updateDurationTime = m_time1_span.count();
-            EngineMisc::framesPerSecond = EngineMisc::framesPerSecond*0.99+0.01/EngineMisc::updateDurationTime;
-        }
-        m_timer1_start  = std::chrono::high_resolution_clock::now();
-
-
-        EngineMisc::sycle++;
-        EngineMisc::tmpSycleCounter++;*/
-       if(EngineMisc::tmpSycleCounter > 100)
-        {
-            EngineMisc::tmpSycleCounter = 0;
-            qDebug() << "FPS: "<<EngineMisc::framesPerSecond << "\t sycle: "<<EngineMisc::sycle;
-      //      this->__deleteTargets();
-        }
-    }
-
-    if(m_frameUpdateTimer.start(1.0/EngineMisc::framesPerSecondTarget))
-    {
-
-        this->updateGraphics();
-    }
-}
-
-void GameEngine::setMapSize(coordinate mapsize)
-{
-    m_mapSize = mapsize;
-    if(m_mapSize.x < 1 || m_mapSize.y < 1)
-    {
-        // invalid mapsize
-        m_mapSize.x = 1;
-        m_mapSize.y = 1;
-    }
-    EngineMisc::mapSize = m_mapSize;
-    this->updateSettings();
-}
-
 void GameEngine::setBackgroundColor(sf::Color color)
 {
     m_backgroundColor = color;
-    this->updateSettings();
+}
+
+void GameEngine::setTickInterval(double sec)
+{
+    m_tickInterval = sec;
+}
+void GameEngine::setDisplayInterval(double sec)
+{
+    m_displayInterval = sec;
+}
+void GameEngine::set_userTimer_1(double sec)
+{
+    m_userTimer_1_Interval = sec;
+}
+void GameEngine::set_userTimer_2(double sec)
+{
+    m_userTimer_2_Interval = sec;
+}
+void GameEngine::set_userTimer_3(double sec)
+{
+    m_userTimer_3_Interval = sec;
+}
+void GameEngine::set_userTimer_4(double sec)
+{
+    m_userTimer_4_Interval = sec;
+}
+void GameEngine::set_userTimer_5(double sec)
+{
+    m_userTimer_5_Interval = sec;
+}
+void GameEngine::set_userTimer_1_enable(bool enable)
+{
+    m_userTimer_1_enable = enable;
+}
+void GameEngine::set_userTimer_2_enable(bool enable)
+{
+    m_userTimer_2_enable = enable;
+}
+void GameEngine::set_userTimer_3_enable(bool enable)
+{
+    m_userTimer_3_enable = enable;
+}
+void GameEngine::set_userTimer_4_enable(bool enable)
+{
+    m_userTimer_4_enable = enable;
+}
+void GameEngine::set_userTimer_5_enable(bool enable)
+{
+    m_userTimer_5_enable = enable;
+}
+unsigned long long GameEngine::getCurrentTick() const
+{
+    return m_currentTick;
+}
+double GameEngine::getTickUpdateTime() const
+{
+    return m_tickInterval;
+}
+
+void GameEngine::addGameObject(GameObject *obj)
+{
+    m_gameObjectList.push_back(obj);
+}
+void GameEngine::setSimulationsTimeMultiplyer(double factor)
+{
+    m_simulationsTimeMultiplyer = factor;
 }
 
 
-// private
-
+void GameEngine::tick()
+{
+    this->handleEvents();
+    this->move();
+    this->checkCollision();
+}
+void GameEngine::move()
+{
+    for(size_t i=0; i<m_gameObjectList.size(); i++)
+    {
+        m_gameObjectList[i]->move(m_tickInterval*m_simulationsTimeMultiplyer);
+    }
+}
 void GameEngine::checkCollision()
 {
-    for(unsigned int a=0; a<Collider::collider_list.size(); a++)
+    for(size_t i=0; i<m_gameObjectList.size(); i++)
     {
-        for(unsigned int b=a+1; b<Collider::collider_list.size(); b++)
-        {
-            if(Physics::isCollided(Collider::collider_list[a],Collider::collider_list[b]))
-            {
-                Collider::collider_list[a]->sendEvent_onCollision();
-                Collider::collider_list[b]->sendEvent_onCollision();
-                qDebug() << "Collision "<<a << " "<<b;
-            }
-        }
+        std::vector<GameObject*> tmpList = m_gameObjectList;
+        tmpList.erase(tmpList.begin()+i);
+        m_gameObjectList[i]->checkCollision(tmpList);
     }
 }
-void GameEngine::calculatePhysics()
+void GameEngine::draw()
 {
-    for(unsigned int a=0; a<Controller::controller_list.size(); a++)
+    m_renderWindow->clear(m_backgroundColor);
+    for(size_t i=0; i<m_gameObjectList.size(); i++)
     {
-        if(Controller::controller_list[a]->gravity())//Gravity enabled?
-            Physics::applyGravity(Controller::controller_list[a]);
+        m_gameObjectList[i]->draw(m_renderWindow);
     }
-    for(unsigned int a=0; a<GameObject::gameObject_list.size(); a++)
-    {
-        GameObject::gameObject_list[a]->update();
-    }
+    m_renderWindow->display();
 }
-
-void GameEngine::updateSettings()
+void GameEngine::handleEvents()
 {
-    if(m_settingsSkipUpdate)
-        return;
-
-    if(m_renderWindow != nullptr)
-    {
-        m_renderWindow->setSize(m_windowSize);
-        m_renderWindow->setTitle(m_windowName);
-    }
-
-    m_backgroundImage.create(m_mapSize.x,m_mapSize.y,m_backgroundColor);
-    m_backgroundTexture.loadFromImage(m_backgroundImage);
-    m_backgroundSprite.setTexture(m_backgroundTexture);
-    m_backgroundSprite.setPosition(0,0);
-    m_backgroundSprite.setScale(m_windowSize.x/m_mapSize.x,m_windowSize.y/m_mapSize.y);
-
-    m_graphicsScale.x = m_windowSize.x/m_mapSize.x;
-    m_graphicsScale.y = m_windowSize.y/m_mapSize.y;
-
-    EngineMisc::mapSize = m_mapSize;
-    EngineMisc::graphicScale = m_graphicsScale;
-
-    m_object.updateSettings();
-    m_object_2.updateSettings();
-}
-
-// Events
-void GameEngine::handleEvent()
-{
-
     if(!m_renderWindow->isOpen())
     {
-        return;
+        this->stop();
     }
     sf::Event event;
     while(m_renderWindow->pollEvent(event))
@@ -216,115 +195,35 @@ void GameEngine::handleEvent()
         {
             case sf::Event::Closed:
             {
-                qDebug() << "close";
-                m_renderWindow->close();
-                m_isRunning = false;
+                this->stop();
                 break;
             }
-        case sf::Event::KeyPressed:
+            case sf::Event::Resized:
             {
-                //this->handleKeyEvent(event);
+                this->setWindowSize(m_windowSize.x,m_windowSize.y);
                 break;
             }
         }
     }
-    this->handleKeyEvent(event);
-
 
 }
-void GameEngine::handleKeyEvent(sf::Event &event)
+
+void GameEngine::handleUserTimer()
 {
-    Velocity vel1 = m_object.getController()->getVelocity();
-    double velocity = 1;
-
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){m_object.getController()->setVelocity(Physics::velocity_add(m_object.getController()->getVelocity(),Velocity{.velocity=velocity,.direction=coordinateF{0,-8}}));  }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){m_object.getController()->setVelocity(Physics::velocity_add(m_object.getController()->getVelocity(),Velocity{.velocity=velocity,.direction=coordinateF{0,-5}}));  }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){m_object.getController()->setVelocity(Physics::velocity_add(m_object.getController()->getVelocity(),Velocity{.velocity=velocity,.direction=coordinateF{-1,0}}));  }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){m_object.getController()->setVelocity(Physics::velocity_add(m_object.getController()->getVelocity(),Velocity{.velocity=velocity,.direction=coordinateF{0,1}}));  }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){m_object.getController()->setVelocity(Physics::velocity_add(m_object.getController()->getVelocity(),Velocity{.velocity=velocity,.direction=coordinateF{1,0}}));  }
-
-  /*
-    switch(event.key.code)
-    {
-        case sf::Keyboard::Space:
-        {
-           // qDebug() << "W pressed";
-        m_object.getController()->setVelocity(Physics::velocity_add(vel1,Velocity{.velocity=velocity,.direction=coordinateF{0,-8}}));
-            //m_object.getController()->setVelocity(Velocity{.velocity = velocity,.direction=coordinateF{0,-15}});
-            //m_object.move(sf::Vector2<int>(0,-1));
-            break;
-        }
-        case sf::Keyboard::W:
-        {
-           // qDebug() << "W pressed";
-            m_object.getController()->setVelocity(Physics::velocity_add(vel1,Velocity{.velocity=velocity,.direction=coordinateF{0,-5}}));
-            //m_object.getController()->setVelocity(Velocity{.velocity = velocity,.direction=coordinateF{0,-15}});
-            //m_object.move(sf::Vector2<int>(0,-1));
-            break;
-        }
-        case sf::Keyboard::A:
-        {
-            m_object.getController()->setVelocity(Physics::velocity_add(vel1,Velocity{.velocity=velocity,.direction=coordinateF{-1,0}}));
-            //m_object.getController()->setVelocity(Velocity{.velocity = velocity,.direction=coordinateF{-1,0}});
-            //m_object.move(sf::Vector2<int>(-1,0));
-            break;
-        }
-        case sf::Keyboard::S:
-        {
-            m_object.getController()->setVelocity(Physics::velocity_add(vel1,Velocity{.velocity=velocity,.direction=coordinateF{0,1}}));
-            //m_object.getController()->setVelocity(Velocity{.velocity = velocity,.direction=coordinateF{0,1}});
-            //m_object.move(sf::Vector2<int>(0,1));
-            break;
-        }
-        case sf::Keyboard::D:
-        {
-            m_object.getController()->setVelocity(Physics::velocity_add(vel1,Velocity{.velocity=velocity,.direction=coordinateF{1,0}}));
-            //m_object.getController()->setVelocity(Velocity{.velocity = velocity,.direction=coordinateF{1,0}});
-            //m_object.move(sf::Vector2<int>(1,0));
-            break;
-        }
-    }*/
+    if(m_userTimer_1_enable)
+        if(m_userTimer_1.start(m_userTimer_1_Interval))
+            user_loop_timer_1();
+    if(m_userTimer_1_enable)
+        if(m_userTimer_2.start(m_userTimer_2_Interval))
+            user_loop_timer_2();
+    if(m_userTimer_1_enable)
+        if(m_userTimer_3.start(m_userTimer_3_Interval))
+            user_loop_timer_3();
+    if(m_userTimer_1_enable)
+        if(m_userTimer_4.start(m_userTimer_4_Interval))
+            user_loop_timer_4();
+    if(m_userTimer_1_enable)
+        if(m_userTimer_5.start(m_userTimer_5_Interval))
+            user_loop_timer_5();
 }
 
-
-void GameEngine::updateGraphics()
-{
-    m_renderWindow->draw(m_backgroundSprite);
-
-    for(unsigned int a=0; a<Painter::painter_list.size(); a++)
-    {
-        m_renderWindow->draw(*Painter::painter_list[a]->getSprite());
-    }
-
-    // end the current frame
-    m_renderWindow->display();
-}
-
-void GameEngine::__deleteTargets()
-{
-    if(EngineMisc::__deleteTargetList.size() == 0)
-        return;
-    qDebug() << "Deleting "<<EngineMisc::__deleteTargetList.size()<<" targets...";
-    for(size_t target=0; target<EngineMisc::__deleteTargetList.size(); target++)
-    {
-        switch(EngineMisc::__deleteTargetList[target].typeTag)
-        {
-            case TYPE_TAG_COLLIDER:
-            {
-                Collider::collider_list.erase(Collider::collider_list.begin()+EngineMisc::__deleteTargetList[target].ID);
-                break;
-            }
-            case TYPE_TAG_GAMEOBJECT:
-            {
-                GameObject::gameObject_list.erase(GameObject::gameObject_list.begin()+EngineMisc::__deleteTargetList[target].ID);
-                break;
-            }
-            case TYPE_TAG_CONTROLLER:
-            {
-                Controller::controller_list.erase(Controller::controller_list.begin()+EngineMisc::__deleteTargetList[target].ID);
-                break;
-            }
-        }
-    }
-    EngineMisc::__deleteTargetList.clear();
-}
