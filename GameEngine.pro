@@ -51,12 +51,13 @@ LIBS        += $$sfml_libs
 
 
 
+
 SOURCES += \
     $$srcPath/gameEngine.cpp \
 	$$srcPath/utility/vector.cpp \
 	$$srcPath/utility/timer.cpp \
     $$srcPath/collider.cpp \
-	$$srcPath/cubeCollider.cpp \
+	$$srcPath/RectCollider.cpp \
 	$$srcPath/circleCollider.cpp \
     $$srcPath/controller.cpp \
 	$$srcPath/keyController.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
     $$srcPath/painter.cpp \
     $$srcPath/gameObject.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    src/utility/vectorFunction.cpp
 
 
 
@@ -73,13 +75,14 @@ HEADERS += \
     $$incPath/utility/vector.h \
     $$incPath/utility/timer.h \
     $$incPath/collider.h \
-    $$incPath/cubeCollider.h \
+    $$incPath/RectCollider.h \
     $$incPath/circleCollider.h \
     $$incPath/controller.h \
     $$incPath/keyController.h \
 	$$incPath/gravityController.h \
 	$$incPath/painter.h \
 	$$incPath/gameObject.h \
+    inc/utility/vectorFunction.h \
     mainwindow.h
 
 FORMS += \

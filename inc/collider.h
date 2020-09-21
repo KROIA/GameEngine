@@ -18,10 +18,15 @@ class Collider
         virtual Vector getSize() const;
         virtual Vector getPos() const;
 
+        // deltaMove is the last moved vector.
+        //virtual bool collides(const Collider *other,Vector &deltaMove) const;
+        virtual bool collides(const Collider *other) const;
+
     protected:
         Vector m_size;
         Vector m_pos;
     private:
+
 
 };
 #endif

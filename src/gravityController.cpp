@@ -3,8 +3,12 @@
 GravityController::GravityController()
     : Controller()
 {
-    m_gravityDeltaV.setLength(9.81);
-    m_gravityDeltaV.setAngle(M_PI*0.5); // 90 deg
+    // 90 deg
+    this->setForceVector(Vector(M_PI*0.5,9.81));
+}
+GravityController::GravityController(double force)
+{
+    this->setForceVector(Vector(M_PI*0.5,force));
 }
 GravityController::GravityController(const GravityController &controller)
     : Controller(controller)
@@ -16,6 +20,14 @@ GravityController::GravityController(const GravityController &controller)
 GravityController::~GravityController()
 {
 
+}
+void GravityController::setForce(double force)
+{
+    m_gravityDeltaV.setLength(abs(force));
+}
+void GravityController::setForceVector(Vector force)
+{
+    m_gravityDeltaV = force;
 }
 
 void GravityController::tick(double timeInterval)

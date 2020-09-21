@@ -3,6 +3,7 @@
 Collider::Collider()
 {
     this->setPos(Vector(-M_PI_4,sqrt(2)));
+    this->setSize(1,1);
 }
 
 Collider::Collider(const Collider &collider)
@@ -47,3 +48,8 @@ Vector Collider::getPos() const
     return m_pos;
 }
 
+//bool Collider::collides(const Collider *other,Vector &deltaMove) const
+bool Collider::collides(const Collider *other) const
+{
+    return false;
+}

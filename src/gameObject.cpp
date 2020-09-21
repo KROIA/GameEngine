@@ -2,45 +2,160 @@
 
 GameObject::GameObject()
 {
-    //m_controller.setVelocity(Vector(0,0));
-    m_painter.setScale(100,100);
-    m_pos = Vector(0,0);
-    m_lastVel = Vector(0,0);
+    m_pos           = Vector(0,0);
+    m_lastPos       = m_pos;
+    m_velocity      = Vector(0,0);
+    m_lastVelocity  = m_velocity;
+
+    this->setSize(50,50);
 }
 GameObject::~GameObject()
 {
-    for(size_t controller = 0; controller<m_controllerList.size(); controller++)
+    for(size_t i = 0; i<m_colliderList.size(); i++)
     {
-        delete m_controllerList[controller];
+        delete m_colliderList[i];
     }
+    for(size_t i = 0; i<m_controllerList.size(); i++)
+    {
+        delete m_controllerList[i];
+    }
+    for(size_t i = 0; i<m_painterList.size(); i++)
+    {
+        delete m_painterList[i];
+    }
+    m_colliderList.clear();
     m_controllerList.clear();
+    m_painterList.clear();
 }
 
-void GameObject::addCollider(Collider collider)
+void GameObject::addCollider(Collider *collider)
 {
+    collider->setSize(m_size);
     m_colliderList.push_back(collider);
 }
 void GameObject::addController(Controller* controller)
 {
     m_controllerList.push_back(controller);
 }
-void GameObject::addPainter(Painter painter)
+void GameObject::addPainter(Painter *painter)
 {
+    painter->setSize(m_size);
     m_painterList.push_back(painter);
 }
 
-void GameObject::tick(double timeInterval)
+void GameObject::move(double timeInterval)
 {
+    m_lastPos       = m_pos;
+    m_lastVelocity  = m_velocity;
     for(size_t i = 0; i < m_controllerList.size(); i++)
     {
         Controller* controller = m_controllerList[i];
         controller->tick(timeInterval);
-        m_lastVel += controller->getVelocity();
+        m_velocity += controller->getVelocity();
     }
-   // m_controller.tick(timeInterval);
-    m_pos += m_lastVel * timeInterval;
+    m_pos += m_velocity * timeInterval;
+
+    // Move all colliders
+    for(size_t i=0; i<m_colliderList.size(); i++)
+    {
+        m_colliderList[i]->setPos(m_pos);
+
+    }
+   // qDebug() <<"pos: " <<m_pos.toString().c_str();
+}
+bool GameObject::checkCollision(GameObject *other)
+{
+    Collider *thisCollider;
+    Collider *otherCollider;
+    for(size_t a=0; a<m_colliderList.size(); a++)
+    {
+        thisCollider = m_colliderList[a];
+        for(size_t i=0; i<other->m_colliderList.size(); i++)
+        {
+            otherCollider = other->m_colliderList[i];
+
+            //Vector collisionVec(0,0);
+            //if(thisCollider->collides(otherCollider,collisionVec))
+            if(thisCollider->collides(otherCollider))
+            {
+                //qDebug() << " collision!";
+                m_pos   = m_lastPos;
+                this->setVelocity(Vector(0,0));
+                //m_pos += collisionVec;
+             //   Vector rotatedCollisionVecor = collisionVec;
+             //   rotatedCollisionVecor.rotate(-M_PI/2);
+
+                return true; // collision
+            }
+        }
+    }
+    return false;
+}
+bool GameObject::checkCollision(std::vector<GameObject*> others)
+{
+
+    for(size_t i=0; i<others.size(); i++)
+    {
+        if(this->checkCollision(others[i]))
+        {
+            m_pos   = m_lastPos;
+            return true; // collision
+        }
+    }
+    return false;
 }
 void GameObject::draw(sf::RenderWindow *window)
 {
-    m_painter.draw(window,m_pos);
+    for(size_t i=0; i<m_painterList.size(); i++)
+        m_painterList[i]->draw(window,m_pos);
+}
+
+void GameObject::setPos(Vector pos)
+{
+    m_pos       = pos;
+    m_lastPos   = m_pos;
+}
+void GameObject::setPos(double x, double y)
+{
+    m_pos.setX(x);
+    m_pos.setY(y);
+    m_lastPos = m_pos;
+}
+Vector GameObject::getPos() const
+{
+    return m_pos;
+}
+void GameObject::setSize(Vector size)
+{
+    m_size = size;
+    for(size_t i=0; i<m_colliderList.size(); i++)
+    {
+        m_colliderList[i]->setSize(m_size);
+    }
+    for(size_t i=0; i<m_painterList.size(); i++)
+    {
+        m_painterList[i]->setSize(m_size);
+    }
+}
+void GameObject::setSize(double x, double y)
+{
+    m_size.setX(x);
+    m_size.setY(y);
+    for(size_t i=0; i<m_colliderList.size(); i++)
+    {
+        m_colliderList[i]->setSize(m_size);
+    }
+    for(size_t i=0; i<m_painterList.size(); i++)
+    {
+        m_painterList[i]->setSize(m_size);
+    }
+}
+Vector GameObject::getSize() const
+{
+    return m_size;
+}
+void GameObject::setVelocity(Vector vel)
+{
+    m_velocity      = vel;
+    m_lastVelocity  = m_velocity;
 }
