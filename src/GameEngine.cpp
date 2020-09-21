@@ -6,6 +6,7 @@ GameEngine::GameEngine(unsigned int width, unsigned int height,const std::string
     this->setTickInterval(0.02); // 20ms
     this->setDisplayInterval(0.02); // 20ms
     this->setSimulationsTimeMultiplyer(1);
+    m_simulationsTimeInterval = 0;
 
     this->set_userTimer_1(1); this->set_userTimer_1_enable(false);
     this->set_userTimer_2(2); this->set_userTimer_2_enable(false);
@@ -36,14 +37,26 @@ void GameEngine::start()
 {
     qDebug() << "start engine";
     m_engineRunning = true;
+
     while(m_engineRunning)
     {
         this->user_loop();
         this->handleUserTimer();
+
         if(m_tickTimer.start(m_tickInterval))
         {
+            Timer t;
+            t.start(100);
+
             this->user_tickLoop();
             this->tick();
+            t.update();
+            if(t.getTime() > m_tickInterval)
+                m_simulationsTimeInterval = t.getTime();
+            else
+                m_simulationsTimeInterval = m_tickInterval;
+
+           // qDebug() << "t: "<<t.getTime();
         }
         if(m_displayTimer.start(m_displayInterval))
         {
@@ -86,7 +99,9 @@ void GameEngine::setBackgroundColor(sf::Color color)
 
 void GameEngine::setTickInterval(double sec)
 {
-    m_tickInterval = sec;
+    m_tickInterval = abs(sec);
+    if(m_tickInterval == 0)
+        m_tickInterval = 0.0001;
 }
 void GameEngine::setDisplayInterval(double sec)
 {
@@ -161,15 +176,27 @@ void GameEngine::move()
 {
     for(size_t i=0; i<m_gameObjectList.size(); i++)
     {
-        m_gameObjectList[i]->move(m_tickInterval*m_simulationsTimeMultiplyer);
+        m_gameObjectList[i]->move(m_simulationsTimeInterval*m_simulationsTimeMultiplyer);
     }
 }
 void GameEngine::checkCollision()
 {
     for(size_t i=0; i<m_gameObjectList.size(); i++)
     {
-        std::vector<GameObject*> tmpList = m_gameObjectList;
-        tmpList.erase(tmpList.begin()+i);
+      // std::vector<GameObject*> tmpList = m_gameObjectList;
+       // tmpList.erase(tmpList.begin()+i);
+        if(!isInFrame(m_gameObjectList[i]))
+            continue;
+
+        std::vector<GameObject*> tmpList;
+        tmpList.reserve(m_gameObjectList.size());
+        for(size_t b=0; b<m_gameObjectList.size(); b++)
+        {
+            if(!isInFrame(m_gameObjectList[b]) || b == i)
+                continue;
+            tmpList.push_back(m_gameObjectList[b]);
+        }
+
         m_gameObjectList[i]->checkCollision(tmpList);
     }
 }
@@ -178,6 +205,8 @@ void GameEngine::draw()
     m_renderWindow->clear(m_backgroundColor);
     for(size_t i=0; i<m_gameObjectList.size(); i++)
     {
+        if(!isInFrame(m_gameObjectList[i]))
+            continue;
         m_gameObjectList[i]->draw(m_renderWindow);
     }
     m_renderWindow->display();
@@ -227,3 +256,18 @@ void GameEngine::handleUserTimer()
             user_loop_timer_5();
 }
 
+bool GameEngine::isInFrame(GameObject *obj)
+{
+    Vector pos = obj->getPos();
+    Vector size = obj->getSize();
+    if(pos.getX()+size.getX() < 0)
+        return false;
+    if(pos.getX() > m_windowSize.x)
+        return false;
+    if(pos.getY()+size.getY() < 0)
+        return false;
+    if(pos.getY() > m_windowSize.y)
+        return false;
+
+    return true;
+}

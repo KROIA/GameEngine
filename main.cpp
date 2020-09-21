@@ -88,13 +88,15 @@ int main(int argc, char *argv[])
     myPlayer->addPainter(playerPainter);
     myPlayer->setSize(50,50);
 
-    engine.addGameObject(myPlayer);
+
 
     generateGround(&engine,50);
-    generateObsticles(&engine,10);
+    generateObsticles(&engine,100);
 
-    engine.setTickInterval(0.02);
-    engine.setSimulationsTimeMultiplyer(3);
+    engine.addGameObject(myPlayer);
+
+    engine.setTickInterval(0.05);
+    engine.setSimulationsTimeMultiplyer(2);
 
     engine.start();
 
@@ -192,7 +194,7 @@ void GameEngine::user_loop()
 }
 void GameEngine::user_tickLoop()
 {
-    qDebug() << " userTickLoop";
+    //qDebug() << " userTickLoop";
 }
 void GameEngine::user_loop_timer_1()
 {
@@ -235,7 +237,7 @@ void generateObsticles(GameEngine *engine, unsigned int amount)
         obj->addPainter(painter);
         obj->setPos(i*tileSize.getX(),windowSize.y-tileSize.getY());
         obj->setSize(tileSize);
-        obj->setPos(rand()%windowSize.x,-(rand()%100));
+        obj->setPos(rand()%windowSize.x,-(rand()%amount*10) + windowSize.y/2);
         obj->setVelocity(Vector((rand()%3141)/(double)1000,(rand()%1000)/(double)10));
 
 

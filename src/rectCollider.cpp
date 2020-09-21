@@ -44,6 +44,9 @@ void RectCollider::setPos(const double &x, const double &y)
 //bool RectCollider::collides(const Collider *other,Vector &deltaMove) const
 bool RectCollider::collides(const Collider *other) const
 {
+//#define VecCollision
+
+#ifdef VecCollision
 
     std::vector<Vector> pushOutOfObsticleVectorList;
     RectCollider *_other = (RectCollider*)other;
@@ -132,19 +135,9 @@ bool RectCollider::collides(const Collider *other) const
           //  collisionVector.setY(0);
         }
     }
-   /* if(pushOutOfObsticleVectorList.size() != 0)
-    {
-        Vector smallestVector = pushOutOfObsticleVectorList[0];
-        for(size_t i=1; i<pushOutOfObsticleVectorList.size(); i++)
-        {
-            if(smallestVector.getLength() > pushOutOfObsticleVectorList[i].getLength())
-                smallestVector = pushOutOfObsticleVectorList[i];
-        }
-        deltaMove = smallestVector;
-    }*/
     return intersects;
-
-    /*double va1x = this->m_pos.getX();
+#else
+   /* double va1x = this->m_pos.getX();
     double va1y = this->m_pos.getY();
     double va2x = this->m_size.getX();
     double va2y = this->m_size.getY();
@@ -173,7 +166,7 @@ bool RectCollider::collides(const Collider *other) const
      *             |             |
      *            bx3-----------bx4
      */
-/*
+
     Vector ax1  = this->m_pos;
     Vector ax2  = this->m_pos + Vector(0,this->m_size.getX());
     Vector ax3  = this->m_pos + Vector(M_PI*1.5,this->m_size.getY());
@@ -194,7 +187,8 @@ bool RectCollider::collides(const Collider *other) const
        bx1.getY() > ax4.getY())
         return false;
 
-    return true;*/
+    return true;
+#endif
 }
 
 

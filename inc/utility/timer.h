@@ -16,6 +16,8 @@ public:
     bool start(double sec);
     void stop();
 
+    bool update();
+
     void setAutorestart(bool enable);
 
     double getTime();

@@ -66,6 +66,7 @@ class GameEngine
         virtual void handleEvents();
 
         virtual void handleUserTimer();
+        virtual bool isInFrame(GameObject *obj);
 
 
 
@@ -79,6 +80,7 @@ class GameEngine
         Timer m_tickTimer; double m_tickInterval;
         Timer m_displayTimer; double m_displayInterval;
         double m_simulationsTimeMultiplyer;
+        double m_simulationsTimeInterval;
 
         sf::RenderWindow *m_renderWindow;
         sf::View m_windowView;
