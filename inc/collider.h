@@ -3,6 +3,7 @@
 
 #include "vector.h"
 
+
 class Collider
 {
     public:
@@ -17,10 +18,14 @@ class Collider
 
         virtual Vector getSize() const;
         virtual Vector getPos() const;
+        virtual Vector getCenter() const;
+
 
         // deltaMove is the last moved vector.
         //virtual bool collides(const Collider *other,Vector &deltaMove) const;
-        virtual bool collides(const Collider *other) const;
+        //virtual bool collides(const Collider *other) const;
+        virtual bool collides(const Collider *other, const Vector &thisVelocity, const Vector &otherVelocity) const;
+
 
     protected:
         Vector m_size;

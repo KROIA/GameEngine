@@ -7,6 +7,7 @@ GameObject::GameObject()
     m_velocity      = Vector(0,0);
     m_lastVelocity  = m_velocity;
 
+    this->setStatic(false);
     this->setSize(50,50);
 }
 GameObject::~GameObject()
@@ -45,22 +46,20 @@ void GameObject::addPainter(Painter *painter)
 
 void GameObject::move(double timeInterval)
 {
-    m_lastPos       = m_pos;
-    m_lastVelocity  = m_velocity;
+    //m_lastPos       = m_pos;
+    Vector vel(0,0);
     for(size_t i = 0; i < m_controllerList.size(); i++)
     {
         Controller* controller = m_controllerList[i];
         controller->tick(timeInterval);
-        m_velocity += controller->getVelocity();
+        vel += controller->getVelocity();
     }
-    m_pos += m_velocity * timeInterval;
+    this->setVelocity(this->m_lastVelocity+vel);
+    this->movePos(m_velocity * timeInterval);
+    //m_pos += m_velocity * timeInterval;
 
     // Move all colliders
-    for(size_t i=0; i<m_colliderList.size(); i++)
-    {
-        m_colliderList[i]->setPos(m_pos);
 
-    }
    // qDebug() <<"pos: " <<m_pos.toString().c_str();
 }
 bool GameObject::checkCollision(GameObject *other)
@@ -74,13 +73,34 @@ bool GameObject::checkCollision(GameObject *other)
         {
             otherCollider = other->m_colliderList[i];
 
+            if(thisCollider == otherCollider)
+                continue;
+
             //Vector collisionVec(0,0);
             //if(thisCollider->collides(otherCollider,collisionVec))
-            if(thisCollider->collides(otherCollider))
+            if(thisCollider->collides(otherCollider,this->m_velocity,other->m_velocity))
             {
-                //qDebug() << " collision!";
-                m_pos   = m_lastPos;
+                /*Vector thisCenter = thisCollider->getCenter();
+                Vector otherCenter = otherCollider->getCenter();
+                Vector driftOutVec =  thisCenter - otherCenter;
+
                 this->setVelocity(Vector(0,0));
+                this->movePos(driftOutVec*0.1);*/
+                //m_pos += driftOutVec;
+                //qDebug() << "drift: "<<driftOutVec.toString().c_str();
+
+                //qDebug() << " collision!";
+                //m_pos   = m_lastPos;
+
+                if(!this->m_isStatic)
+                {
+                    Vector lastPos = m_lastPos;
+                    this->setVelocity(Vector(0,0));
+                    this->setPos(m_lastPos);
+                    m_lastPos = lastPos;
+                    m_lastVelocity = m_velocity;
+                }
+
                 //m_pos += collisionVec;
              //   Vector rotatedCollisionVecor = collisionVec;
              //   rotatedCollisionVecor.rotate(-M_PI/2);
@@ -98,7 +118,7 @@ bool GameObject::checkCollision(std::vector<GameObject*> others)
     {
         if(this->checkCollision(others[i]))
         {
-            m_pos   = m_lastPos;
+            //m_pos   = m_lastPos;
             return true; // collision
         }
     }
@@ -110,16 +130,31 @@ void GameObject::draw(sf::RenderWindow *window)
         m_painterList[i]->draw(window,m_pos);
 }
 
+void GameObject::movePos(Vector delta)
+{
+    if(!m_isStatic)
+        this->setPos(m_pos + delta);
+}
 void GameObject::setPos(Vector pos)
 {
-    m_pos       = pos;
     m_lastPos   = m_pos;
+    m_pos       = pos;
+
+    for(size_t i=0; i<m_colliderList.size(); i++)
+    {
+        m_colliderList[i]->setPos(m_pos);
+
+    }
 }
 void GameObject::setPos(double x, double y)
 {
+    m_lastPos = m_pos;
     m_pos.setX(x);
     m_pos.setY(y);
-    m_lastPos = m_pos;
+    for(size_t i=0; i<m_colliderList.size(); i++)
+    {
+        m_colliderList[i]->setPos(m_pos);
+    }
 }
 Vector GameObject::getPos() const
 {
@@ -156,6 +191,10 @@ Vector GameObject::getSize() const
 }
 void GameObject::setVelocity(Vector vel)
 {
-    m_velocity      = vel;
     m_lastVelocity  = m_velocity;
+    m_velocity      = vel;
+}
+void GameObject::setStatic(bool enable)
+{
+    m_isStatic = enable;
 }

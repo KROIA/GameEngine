@@ -39,12 +39,21 @@ void RectCollider::setPos(const double &x, const double &y)
     Collider::setPos(x,y);
     this->updateVecFunc();
 }
-
+Vector RectCollider::getCenter() const
+{
+    std::vector<Vector> list{
+        m_Vfunc_top.getPoint(0),
+        m_Vfunc_top.getPoint(1),
+        m_Vfunc_bottom.getPoint(0),
+        m_Vfunc_bottom.getPoint(1)
+    };
+    return Vector::getAverage(list);
+}
 
 //bool RectCollider::collides(const Collider *other,Vector &deltaMove) const
-bool RectCollider::collides(const Collider *other) const
+bool RectCollider::collides(const Collider *other,const Vector &thisVelocity, const Vector &otherVelocity) const
 {
-//#define VecCollision
+#define VecCollision
 
 #ifdef VecCollision
 
@@ -123,6 +132,91 @@ bool RectCollider::collides(const Collider *other) const
     {
         double x1 = m_Vfunc_right.getIntersectionFactor(_other->m_Vfunc_bottom);
         double x2 = VectorFunction::getIntersectionFactor(_other->m_Vfunc_bottom,this->m_Vfunc_right);
+        if(x1 >= 0 && x1 <= 1 &&
+           x2 >= 0 && x2 <= 1)
+        {
+            #ifdef _DEBUG_COLLISION
+            qDebug() << "collision: this.right -X- other.bottom";
+            qDebug() << "  intersects: " << m_Vfunc_right.getIntersection(_other->m_Vfunc_bottom).toString().c_str() << "\n";
+            #endif
+            intersects = true;
+         //   collisionVector.setX(1);
+          //  collisionVector.setY(0);
+        }
+    }
+
+    if(m_Vfunc_top.intersects(_other->m_Vfunc_left))
+    {
+        double x1 = m_Vfunc_top.getIntersectionFactor(_other->m_Vfunc_left);
+        double x2 = VectorFunction::getIntersectionFactor(_other->m_Vfunc_left,this->m_Vfunc_top);
+        if(x1 >= 0 && x1 <= 1 &&
+           x2 >= 0 && x2 <= 1)
+        {
+            #ifdef _DEBUG_COLLISION
+            qDebug() << "collision: this.left -X- other.top";
+            qDebug() << "  intersects: " << m_Vfunc_left.getIntersection(_other->m_Vfunc_top).toString().c_str() << "\n";
+            #endif
+            //collisionVector.setX(-1);
+           // collisionVector.setY(0);
+            intersects = true;
+        }
+    }
+    if(m_Vfunc_top.intersects(_other->m_Vfunc_right))
+    {
+        double x1 = m_Vfunc_top.getIntersectionFactor(_other->m_Vfunc_right);
+        double x2 = VectorFunction::getIntersectionFactor(_other->m_Vfunc_right,this->m_Vfunc_top);
+        if(x1 >= 0 && x1 <= 1 &&
+           x2 >= 0 && x2 <= 1)
+        {
+            #ifdef _DEBUG_COLLISION
+            qDebug() << "collision: this.left -X- other.bottom";
+            qDebug() << "  intersects: " << m_Vfunc_left.getIntersection(_other->m_Vfunc_bottom).toString().c_str() << "\n";
+            #endif
+            //  collisionVector.setX(-1);
+            intersects = true;
+         //   collisionVector.setX(-1);
+         //   collisionVector.setY(0);
+        /*    double factor = x1;
+            if(factor > 0.5)
+                factor = 1-factor; //take the shorter way for pushing the object out of the obsticle
+            Vector pushOutVector = m_Vfunc_left.getDirection() * factor;
+
+            pushOutOfObsticleVectorList.push_back(pushOutVector);*/
+/*
+            // check collision of deltaMoveVector and the other obsticle
+            VectorFunction deltaMoveFunc;
+            deltaMoveFunc.setBase(m_pos-deltaMove);
+            deltaMoveFunc.setDirection(deltaMove);
+            if(deltaMoveFunc.intersects(_other->m_Vfunc_bottom))
+            {
+                double deltaMoveCollisionScalar = deltaMoveFunc.getIntersectionFactor(_other->m_Vfunc_bottom);
+                Vector pushBackVector =  deltaMove * -(1-deltaMoveCollisionScalar);
+                // pushBackVector: Vector for pushing this object back so it won't collide
+
+            }*/
+        }
+    }
+
+    if(m_Vfunc_bottom.intersects(_other->m_Vfunc_left))
+    {
+        double x1 = m_Vfunc_bottom.getIntersectionFactor(_other->m_Vfunc_left);
+        double x2 = VectorFunction::getIntersectionFactor(_other->m_Vfunc_left,this->m_Vfunc_bottom);
+        if(x1 >= 0 && x1 <= 1 &&
+           x2 >= 0 && x2 <= 1)
+        {
+            #ifdef _DEBUG_COLLISION
+            qDebug() << "collision: this.right -X- other.top";
+            qDebug() << "  intersects: " << m_Vfunc_right.getIntersection(_other->m_Vfunc_top).toString().c_str() << "\n";
+            #endif
+            intersects = true;
+          //  collisionVector.setX(1);
+         //   collisionVector.setY(0);
+        }
+    }
+    if(m_Vfunc_bottom.intersects(_other->m_Vfunc_right))
+    {
+        double x1 = m_Vfunc_bottom.getIntersectionFactor(_other->m_Vfunc_right);
+        double x2 = VectorFunction::getIntersectionFactor(_other->m_Vfunc_right,this->m_Vfunc_bottom);
         if(x1 >= 0 && x1 <= 1 &&
            x2 >= 0 && x2 <= 1)
         {

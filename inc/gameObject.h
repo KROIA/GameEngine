@@ -21,7 +21,7 @@ class GameObject
         virtual bool checkCollision(std::vector<GameObject*> others);
         virtual void draw(sf::RenderWindow *window);
 
-
+        virtual void movePos(Vector delta);
         virtual void setPos(Vector pos);
         virtual void setPos(double x, double y);
         virtual Vector getPos() const;
@@ -31,6 +31,8 @@ class GameObject
         virtual Vector getSize() const;
 
         virtual void setVelocity(Vector vel);
+
+        virtual void setStatic(bool enable);
 
 
 
@@ -49,5 +51,7 @@ class GameObject
         Vector m_lastPos;
         Vector m_lastVelocity;
         Vector m_velocity;
+
+        bool m_isStatic;
 };
 #endif

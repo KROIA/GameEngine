@@ -19,7 +19,7 @@ class KeyController : public Controller
 
     protected:
         //void handleKeyEvent(sf::Event &event);
-        void handleKeyPress();
+        void handleKeyPress(double timeInterval);
 
     private:
         Vector m_leftMove;

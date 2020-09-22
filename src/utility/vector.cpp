@@ -18,8 +18,8 @@ Vector::Vector(const Vector&vec)
 {
     this->m_angle = vec.m_angle;
     this->m_length = vec.m_length;
-    m_x = cos(m_angle) * m_length;
-    m_y = sin(m_angle) * m_length;
+    this->m_x = vec.m_x;
+    this->m_y = vec.m_y;
 }
 Vector::~Vector()
 {
@@ -241,4 +241,16 @@ double Vector::getAngle(const Vector &vec1,const Vector &vec2)
         return 0;
     }
     return acos(Vector::getDotProduct(vec1,vec2) / (vec1.m_length * vec2.m_length));
+}
+Vector Vector::getAverage(const std::vector<Vector> &list)
+{
+    Vector vec(0,0);
+    if(list.size() == 0)
+        return vec;
+    for(size_t i=0; i<list.size(); i++)
+    {
+        vec += list[i];
+    }
+    vec *= (1/(double)list.size());
+    return vec;
 }

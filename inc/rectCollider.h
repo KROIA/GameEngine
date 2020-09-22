@@ -19,8 +19,10 @@ class RectCollider : public Collider
         virtual void setPos(const Vector &pos);
         virtual void setPos(const double &x, const double &y);
 
+        virtual Vector getCenter() const;
+
         //virtual bool collides(const Collider *other,Vector &collisionVector) const;
-        virtual bool collides(const Collider *other) const;
+        virtual bool collides(const Collider *other,const Vector &thisVelocity, const Vector &otherVelocity) const;
 
     protected:
 

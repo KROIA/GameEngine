@@ -53,10 +53,12 @@ void GameEngine::start()
             t.update();
             if(t.getTime() > m_tickInterval)
                 m_simulationsTimeInterval = t.getTime();
+            else if(t.getTime() > 1)
+                m_simulationsTimeInterval = 1;
             else
                 m_simulationsTimeInterval = m_tickInterval;
 
-           // qDebug() << "t: "<<t.getTime();
+          //  qDebug() << "t: "<<t.getTime();
         }
         if(m_displayTimer.start(m_displayInterval))
         {

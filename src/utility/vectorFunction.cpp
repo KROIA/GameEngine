@@ -32,19 +32,19 @@ Vector VectorFunction::getBase() const
 void VectorFunction::setDirection(Vector direction)
 {
     this->m_direction = direction;
-    if(this->m_direction.getLength() == 0)
+   /* if(this->m_direction.getLength() == 0)
     {
         qDebug() << "Error: VectorFunction::setDirection(Vector direction): direction has no length";
-    }
+    }*/
 }
 void VectorFunction::setDirection(double x, double y)
 {
     this->m_direction.setX(x);
     this->m_direction.setY(y);
-    if(this->m_direction.getLength() == 0)
+   /* if(this->m_direction.getLength() == 0)
     {
         qDebug() << "Error: VectorFunction::setBase(double x, double y): direction has no length";
-    }
+    }*/
 }
 Vector VectorFunction::getDirection() const
 {

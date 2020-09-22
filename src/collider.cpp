@@ -47,9 +47,13 @@ Vector Collider::getPos() const
 {
     return m_pos;
 }
+Vector Collider::getCenter() const
+{
+    return Vector(0,0);
+}
 
 //bool Collider::collides(const Collider *other,Vector &deltaMove) const
-bool Collider::collides(const Collider *other) const
+bool Collider::collides(const Collider *other,const Vector &thisVelocity, const Vector &otherVelocity) const
 {
     return false;
 }

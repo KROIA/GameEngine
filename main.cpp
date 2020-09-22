@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "rectCollider.h"
+#include "circleCollider.h"
 #include "gravityController.h"
 #include "keyController.h"
 #include "painter.h"
@@ -17,8 +18,11 @@
 
 #include <QDebug>
 
+const std::string texturePath = "..\\..\\textures\\";
+
 void generateObsticles(GameEngine *engine, unsigned int amount);
 void generateGround(GameEngine *engine, unsigned int tiles);
+void vectorTest();
 
 int main(int argc, char *argv[])
 {
@@ -65,7 +69,23 @@ int main(int argc, char *argv[])
     qDebug() << "intersectionFactor2: \t"<<function2.getIntersectionFactor(function1);
     qDebug() << "angle: \t"<<Vector::radToDeg(Vector::getAngle(dir1,dir2));*/
 
-    sf::Vector2u windowSize(1200,700);
+    vectorTest();
+    return 0;
+
+    /*Vector vec(0,1);
+    Vector vec2(0,1);
+    qDebug() << "angle\tlength\tx\ty";
+   // qDebug() << "v1x\tv1y\tv2x\tv2y";
+    for(int a=0; a<360*3; a++)
+    {
+        vec.rotate(Vector::degToRad(1));
+        vec*=0.999;
+        vec2 += vec;
+        qDebug() << vec2.getAngle() << "\t"<<vec2.getLength()<<"\t"<<vec2.getX()<<"\t"<<vec2.getY();
+        //qDebug()<<vec2.getX()<<vec2.getY();
+    }*/
+
+    sf::Vector2u windowSize(300,300);
 
     GameEngine engine(windowSize.x,windowSize.y,"myEngine");
     //engine.setWindowSize(windowSize.x,windowSize.y);
@@ -76,28 +96,34 @@ int main(int argc, char *argv[])
                                                            sf::Keyboard::W,
                                                            sf::Keyboard::S);
     GravityController *playerGravityController = new GravityController(9.81);
-    RectCollider *playerCollider = new RectCollider();
+    CircleCollider *playerCollider = new CircleCollider();
     Painter *playerPainter = new Painter();
-    playerPainter->loadFromFile("E:\\Dokumente\\QT\\Projects\\GameEngine\\textures\\Player.png");
+    playerPainter->loadFromFile(texturePath+"Player2.png");
 
 
     myPlayer->addController(playerKeyController);
-    myPlayer->addController(playerGravityController);
+    //myPlayer->addController(playerGravityController);
     myPlayer->addCollider(playerCollider);
-    myPlayer->setPos(50,100);
+    myPlayer->setPos(0,0);
     myPlayer->addPainter(playerPainter);
     myPlayer->setSize(50,50);
 
+    GameObject* block = new GameObject();
+    block->addCollider(new CircleCollider());
+    block->addPainter(new Painter());
+    block->setPos(100,100);
+
+    engine.addGameObject(block);
 
 
-    generateGround(&engine,50);
-    generateObsticles(&engine,100);
+
+   //generateGround(&engine,50);
+   // generateObsticles(&engine,100);
 
     engine.addGameObject(myPlayer);
 
     engine.setTickInterval(0.05);
-    engine.setSimulationsTimeMultiplyer(2);
-
+    engine.setSimulationsTimeMultiplyer(5);
     engine.start();
 
 
@@ -228,7 +254,7 @@ void generateObsticles(GameEngine *engine, unsigned int amount)
     {
         RectCollider *collider = new RectCollider();
         Painter *painter = new Painter;
-        painter->loadFromFile("E:\\Dokumente\\QT\\Projects\\GameEngine\\textures\\Obsticle.png");
+        painter->loadFromFile(texturePath+"Obsticle.png");
         GravityController *controller = new GravityController(9.81);
 
         GameObject *obj = new GameObject();
@@ -252,17 +278,149 @@ void generateGround(GameEngine *engine, unsigned int tiles)
     tileSize.setY(tileSize.getX());
     for(unsigned int i=0; i<tiles; i++)
     {
-        RectCollider *collider = new RectCollider();
+        CircleCollider *collider = new CircleCollider();
         Painter *painter = new Painter;
-        painter->loadFromFile("E:\\Dokumente\\QT\\Projects\\GameEngine\\textures\\Ground.png");
+        painter->loadFromFile(texturePath+"Ground.png");
 
         GameObject *obj = new GameObject();
         obj->addCollider(collider);
         obj->addPainter(painter);
         obj->setPos(i*tileSize.getX(),windowSize.y-tileSize.getY());
         obj->setSize(tileSize);
+        obj->setStatic(true);
 
 
         engine->addGameObject(obj);
     }
+}
+
+
+void vectorTest()
+{
+    qDebug() << "vectortest begin";
+    Vector OV1;
+    Vector V1;
+    Vector Vr1;
+
+    Vector OV2;
+    Vector V2;
+    Vector Vr2;
+
+    OV1.setX(5);
+    OV1.setY(0);
+    V1.setX(0);
+    V1.setY(0);
+    Vr1.setX(1);
+    Vr1.setY(0);
+
+    OV2.setX(0);
+    OV2.setY(0);
+    V2.setX(16);
+    V2.setY(8);
+    Vr2 = Vr1;
+
+    VectorFunction func1;
+    func1.setBase(OV1);
+    func1.setDirection(V1);
+
+    VectorFunction func2;
+    func2.setBase(OV2);
+    func2.setDirection(V2);
+
+    double ov1x = OV1.getX();
+    double ov1y = OV1.getY();
+    double v1x  = V1.getX();
+    double v1y  = V1.getY();
+
+    double ov2x = OV2.getX();
+    double ov2y = OV2.getY();
+    double v2x  = V2.getX();
+    double v2y  = V2.getY();
+
+    Timer timer;
+    timer.start(1000);
+    double t1 = 0;
+    double t2 = 0;
+    double length;
+
+    length = Vr1.getLength() + Vr2.getLength();
+
+    double discriminante = pow(length,2)*(pow(v1x,2)-2*v1x*v2x+pow(v1y,2)-2*v1y*v2y+pow(v2x,2)+pow(v2y,2))-pow(ov1x,2)*(pow(v1y,2)-2*v1y*v2y+pow(v2y,2))+2*ov1x*(ov1y*(v1x-v2x)+ov2x*(v1y-v2y)-ov2y*(v1x-v2x))*(v1y-v2y)-pow(ov1y,2)*(pow(v1x,2)-2*v1x*v2x+pow(v2x,2))-2*ov1y*(ov2x*(v1y-v2y)-ov2y*(v1x-v2x))*(v1x-v2x)-pow(ov2x,2)*(pow(v1y,2)-2*v1y*v2y+pow(v2y,2))+2*ov2x*ov2y*(v1x-v2x)*(v1y-v2y)-pow(ov2y,2)*(pow(v1x,2)-2*v1x*v2x+pow(v2x,2));
+    double divider = (pow(v1x,2)-2*v1x*v2x+pow(v1y,2)-2*v1y*v2y+pow(v2x,2)+pow(v2y,2));
+
+    if(discriminante < 0 || divider == 0)
+    {
+        // no Collision
+        qDebug() << "no result: discriminante = "<<discriminante << "\tdivider = "<<divider;
+    }
+    else
+    {
+        t1=((  sqrt(discriminante)-ov1x*(v1x-v2x)-ov1y*(v1y-v2y)+ov2x*(v1x-v2x)+ov2y*(v1y-v2y))   /  divider);
+        t2=((-(sqrt(discriminante)+ov1x*(v1x-v2x)+ov1y*(v1y-v2y)-ov2x*(v1x-v2x)-ov2y*(v1y-v2y)))  /  divider);
+    }
+    //Sleep(10);
+    timer.update();
+
+
+    qDebug() << "Function1:\tOV1x\tOV1y \t\tFunction2:\tOV2x\tOV2y";
+    qDebug() << "\t"<<0 << "\t" << 0 << "\t\t\t" << 0 << "\t" << 0;
+    qDebug() << "\t"<<OV1.getX() << "\t" << OV1.getY() << "\t\t\t" << OV2.getX() << "\t" << OV2.getY();
+    qDebug() << "\t"<<func1.getPoint(1).getX() << "\t"<<func1.getPoint(1).getY() << "\t\t\t"<<func2.getPoint(1).getX() << "\t"<<func2.getPoint(1).getY();
+    qDebug() << "";
+
+
+    qDebug() << "t1 = "<< t1;
+    qDebug() << "t2 = "<< t2;
+    qDebug() << "minDistance: \t"<<length;
+    qDebug() << "t\t\tX1\tY1\t\tX2\tY2\t\tdistance\t\t";
+
+    double deltaIterator = (double)1/(double)30;
+    double t = 0.0;
+
+    std::vector<std::vector<double> > Vr1List;
+    std::vector<std::vector<double> > Vr2List;
+    std::vector<std::vector<double> > VdRestList;
+
+    for(int i=0; i<30; i++)
+    {
+
+        Vector fPos1 = func1.getPoint(t);
+        Vector fPos2 = func2.getPoint(t);
+        Vector Vd = fPos2 - fPos1;
+
+
+        Vr1.setAngle(Vd.getAngle());
+        Vr2.setAngle(M_PI + Vd.getAngle());
+
+        Vector VdRest = Vd - Vr1 + Vr2;
+
+        qDebug() << t << "\t\t" <<
+                    fPos1.getX() << "\t"<< fPos1.getY() << "\t\t" <<
+                    fPos2.getX() << "\t"<< fPos2.getY() << "\t\t" <<
+                    VdRest.getLength() << "\t\t"<<
+                    (fPos1+Vr1).getX() << "\t" <<(fPos1+Vr1).getY() << "\t"<<
+                    (fPos2+Vr2).getX() << "\t" <<(fPos2+Vr2).getY();
+
+        Vr1List.push_back({(fPos1).getX(),(fPos1).getY()});
+        Vr1List.push_back({(fPos1+Vr1).getX(),(fPos1+Vr1).getY()});
+
+        Vr2List.push_back({(fPos2).getX(),(fPos2).getY()});
+        Vr2List.push_back({(fPos2+Vr2).getX(),(fPos2+Vr2).getY()});
+
+        VdRestList.push_back({(fPos1+Vr1).getX(),(fPos1+Vr1).getY()});
+        VdRestList.push_back({(fPos1+Vr1+VdRest).getX(),(fPos1+Vr1+VdRest).getY()});
+
+        t+=deltaIterator;
+
+    }
+    qDebug() << "Vr1x\tVr1y\tVr2x\tVr2y\tVdRestX\tVdRestY";
+    for(unsigned int i=0; i<Vr1List.size(); i++)
+    {
+        qDebug() << Vr1List[i][0]    << "\t"<<Vr1List[i][1] << "\t" <<
+                    Vr2List[i][0]    << "\t"<<Vr2List[i][1] << "\t" <<
+                    VdRestList[i][0] << "\t"<<VdRestList[i][1];
+    }
+    qDebug() << "timer time: "<< timer.getTime();
+
+    qDebug() << "vectortest end";
 }

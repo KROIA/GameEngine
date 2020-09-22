@@ -52,6 +52,8 @@ class Vector
         static double getDotProduct(const Vector &vec1,const Vector &vec2);
         static double getAngle(const Vector &vec1,const Vector &vec2);
 
+        static Vector getAverage(const std::vector<Vector> &list);
+
     private:
         double m_angle; //Rad
         double m_length;
