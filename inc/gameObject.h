@@ -6,6 +6,8 @@
 #include "controller.h"
 #include "painter.h"
 
+#include "box2d/box2d.h"
+
 class GameObject
 {
     public:
@@ -31,10 +33,13 @@ class GameObject
         virtual Vector getSize() const;
 
         virtual void setVelocity(Vector vel);
+        virtual Vector getVelocity();
 
         virtual void setStatic(bool enable);
+        virtual void setColor(sf::Color color);
 
-
+        virtual void setDensity(double density);
+        virtual void createBody(b2World *world);
 
     protected:
         std::vector<Collider*>   m_colliderList;
@@ -51,7 +56,15 @@ class GameObject
         Vector m_lastPos;
         Vector m_lastVelocity;
         Vector m_velocity;
+        double m_density;
 
         bool m_isStatic;
+
+
+        // box2d
+        b2BodyDef m_bodyDef;
+        b2Body*   m_body;
+        b2PolygonShape m_dynamicBox;
+        b2FixtureDef m_fixtureDef;
 };
 #endif

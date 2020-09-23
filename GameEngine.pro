@@ -18,7 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # SFML stuff
 sfml_version      = "2.5.1"
 
-sfml_basePath     = "../../SFML-$$sfml_version"
+sfml_basePath     = "../../extern/SFML-$$sfml_version"
 sfml_includePath  = "$$sfml_basePath/include"
 sfml_binPath      = "$$sfml_basePath/bin"
 sfml_libs_debug   = "$$sfml_binPath/Debug/lib/libsfml-audio-d.a" \
@@ -39,14 +39,23 @@ sfml_libs_release = "$$sfml_binPath/Release/lib/libsfml-audio.a" \
 CONFIG(release, debug|release): sfml_libs = $$sfml_libs_release
 CONFIG(debug, debug|release):   sfml_libs = $$sfml_libs_debug
 # End SFML stuff
+
+# box2d stuff
+box2DInclude = extern/box2d/include
+box2DSrc     = extern/box2d/src
+# End box2d stuff
 srcPath = src
 incPath = inc
 
 INCLUDEPATH += $$sfml_includePath \
+               $$box2DInclude \
+               $$box2DSrc \
                $$incPath \
-               $$incPath/utility
+               $$incPath/utility 
 			   
-DEPENDPATH  += $$sfml_includePath
+DEPENDPATH  += $$sfml_includePath \
+               $$sfml_includePath \
+               $$box2DInclude
 LIBS        += $$sfml_libs
 
 
@@ -87,6 +96,53 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui
+	
+SOURCES += \
+	$$box2DSrc/dynamics/b2_body.cpp \
+    $$box2DSrc/dynamics/b2_chain_circle_contact.cpp \
+    $$box2DSrc/dynamics/b2_chain_polygon_contact.cpp \
+    $$box2DSrc/dynamics/b2_circle_contact.cpp \
+    $$box2DSrc/dynamics/b2_contact.cpp \
+    $$box2DSrc/dynamics/b2_contact_manager.cpp \
+    $$box2DSrc/dynamics/b2_contact_solver.cpp \
+    $$box2DSrc/dynamics/b2_distance_joint.cpp \
+    $$box2DSrc/dynamics/b2_edge_circle_contact.cpp \
+    $$box2DSrc/dynamics/b2_edge_polygon_contact.cpp \
+    $$box2DSrc/dynamics/b2_fixture.cpp \
+    $$box2DSrc/dynamics/b2_friction_joint.cpp \
+    $$box2DSrc/dynamics/b2_gear_joint.cpp \
+    $$box2DSrc/dynamics/b2_island.cpp \
+    $$box2DSrc/dynamics/b2_joint.cpp \
+    $$box2DSrc/dynamics/b2_motor_joint.cpp \
+    $$box2DSrc/dynamics/b2_mouse_joint.cpp \
+    $$box2DSrc/dynamics/b2_polygon_circle_contact.cpp \
+    $$box2DSrc/dynamics/b2_polygon_contact.cpp \
+    $$box2DSrc/dynamics/b2_prismatic_joint.cpp \
+    $$box2DSrc/dynamics/b2_pulley_joint.cpp \
+    $$box2DSrc/dynamics/b2_revolute_joint.cpp \
+    $$box2DSrc/dynamics/b2_weld_joint.cpp \
+    $$box2DSrc/dynamics/b2_wheel_joint.cpp \
+    $$box2DSrc/dynamics/b2_world.cpp \
+    $$box2DSrc/dynamics/b2_world_callbacks.cpp \
+    $$box2DSrc/collision/b2_broad_phase.cpp \
+    $$box2DSrc/collision/b2_chain_shape.cpp \
+    $$box2DSrc/collision/b2_circle_shape.cpp \
+    $$box2DSrc/collision/b2_collide_circle.cpp \
+    $$box2DSrc/collision/b2_collide_edge.cpp \
+    $$box2DSrc/collision/b2_collide_polygon.cpp \
+    $$box2DSrc/collision/b2_collision.cpp \
+    $$box2DSrc/collision/b2_distance.cpp \
+    $$box2DSrc/collision/b2_dynamic_tree.cpp \
+    $$box2DSrc/collision/b2_edge_shape.cpp \
+    $$box2DSrc/collision/b2_polygon_shape.cpp \
+    $$box2DSrc/collision/b2_time_of_impact.cpp \
+    $$box2DSrc/common/b2_block_allocator.cpp \
+    $$box2DSrc/common/b2_draw.cpp \
+    $$box2DSrc/common/b2_math.cpp \
+    $$box2DSrc/common/b2_settings.cpp \
+    $$box2DSrc/common/b2_stack_allocator.cpp \
+    $$box2DSrc/common/b2_timer.cpp
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,5 +1,6 @@
 bin
-SFML-2.5.1
+extern/box2d/
+extern/SFML-2.5.1/
 
 *.user
 *.user

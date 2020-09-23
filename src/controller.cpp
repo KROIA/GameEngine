@@ -4,6 +4,7 @@ Controller::Controller()
 {
     m_velocity      = Vector(0,0);
     m_acceleration  = Vector(0,0);
+    setDensity(0.01);
 }
 Controller::Controller(const Controller &controller)
 {
@@ -18,7 +19,7 @@ Controller::~Controller()
     //qDebug() << "~Controller()";
 }
 
-void Controller::tick(double timeInterval)
+void Controller::tick(double timeInterval,b2Body *body)
 {
     // calculate delta V from acceleration
     Vector deltaV;
@@ -35,6 +36,16 @@ void Controller::tick(double timeInterval)
     //------------------------------------
 
     // calculate new Velocity
+    Vector sum(0,0);
+    sum+=m_velocityList;
+    if(sum.getX() != 0 || sum.getY() != 0)
+    {
+
+    }
+    //qDebug() << sum.getX() << "\t"<<sum.getY();
+    b2Vec2 pulse(sum.getX(),sum.getY());
+    body->ApplyLinearImpulseToCenter(pulse,false);
+    //body->ApplyForceToCenter(pulse,true);
     m_velocity += m_velocityList;
     m_velocityList.clear();
     m_velocityList.reserve(10);
@@ -70,4 +81,8 @@ void Controller::addVelocity(const Vector &vel)
 void Controller::addAcceleration(const Vector &acc)
 {
     m_accelerationList.push_back(acc);
+}
+void Controller::setDensity(double density)
+{
+    m_density = abs(density);
 }

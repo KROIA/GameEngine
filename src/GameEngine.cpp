@@ -23,6 +23,18 @@ GameEngine::GameEngine(unsigned int width, unsigned int height,const std::string
 
     this->setWindowSize(width,height);
     this->setWindowName(windowname);
+
+    m_gravity = new b2Vec2(0.0f,-9.81);
+    m_world = new b2World(*m_gravity);
+    m_world->SetSubStepping(false);
+    //m_world->set
+  /*  m_groundBodyDef.position.Set(0.0f, m_windowSize.y-10);
+    m_groundBody = m_world->CreateBody(&m_groundBodyDef);
+    m_groundBox.SetAsBox(m_windowSize.x/2, 10.0f);
+    m_groundBody->CreateFixture(&m_groundBox, 0.0f);*/
+    m_velocityIterations = 6;
+    m_positionIterations = 3;
+
 }
 GameEngine::~GameEngine()
 {
@@ -50,18 +62,23 @@ void GameEngine::start()
 
             this->user_tickLoop();
             this->tick();
+            m_world->Step(m_simulationsTimeInterval*m_simulationsTimeMultiplyer,m_velocityIterations,m_positionIterations);
+
             t.update();
-            if(t.getTime() > m_tickInterval)
+            /*if(t.getTime() > m_tickInterval)
                 m_simulationsTimeInterval = t.getTime();
             else if(t.getTime() > 1)
                 m_simulationsTimeInterval = 1;
             else
                 m_simulationsTimeInterval = m_tickInterval;
+            if(m_simulationsTimeInterval == 0)*/
+                m_simulationsTimeInterval = 1;
 
           //  qDebug() << "t: "<<t.getTime();
         }
         if(m_displayTimer.start(m_displayInterval))
         {
+            this->user_displayLoop();
             this->draw();
         }
     }
@@ -160,6 +177,7 @@ double GameEngine::getTickUpdateTime() const
 
 void GameEngine::addGameObject(GameObject *obj)
 {
+    obj->createBody(m_world);
     m_gameObjectList.push_back(obj);
 }
 void GameEngine::setSimulationsTimeMultiplyer(double factor)
@@ -172,7 +190,7 @@ void GameEngine::tick()
 {
     this->handleEvents();
     this->move();
-    this->checkCollision();
+    //this->checkCollision();
 }
 void GameEngine::move()
 {
@@ -207,8 +225,8 @@ void GameEngine::draw()
     m_renderWindow->clear(m_backgroundColor);
     for(size_t i=0; i<m_gameObjectList.size(); i++)
     {
-        if(!isInFrame(m_gameObjectList[i]))
-            continue;
+       // if(!isInFrame(m_gameObjectList[i]))
+       //     continue;
         m_gameObjectList[i]->draw(m_renderWindow);
     }
     m_renderWindow->display();
@@ -244,16 +262,16 @@ void GameEngine::handleUserTimer()
     if(m_userTimer_1_enable)
         if(m_userTimer_1.start(m_userTimer_1_Interval))
             user_loop_timer_1();
-    if(m_userTimer_1_enable)
+    if(m_userTimer_2_enable)
         if(m_userTimer_2.start(m_userTimer_2_Interval))
             user_loop_timer_2();
-    if(m_userTimer_1_enable)
+    if(m_userTimer_3_enable)
         if(m_userTimer_3.start(m_userTimer_3_Interval))
             user_loop_timer_3();
-    if(m_userTimer_1_enable)
+    if(m_userTimer_4_enable)
         if(m_userTimer_4.start(m_userTimer_4_Interval))
             user_loop_timer_4();
-    if(m_userTimer_1_enable)
+    if(m_userTimer_5_enable)
         if(m_userTimer_5.start(m_userTimer_5_Interval))
             user_loop_timer_5();
 }

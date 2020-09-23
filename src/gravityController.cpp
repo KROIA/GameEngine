@@ -30,9 +30,9 @@ void GravityController::setForceVector(Vector force)
     m_gravityDeltaV = force;
 }
 
-void GravityController::tick(double timeInterval)
+void GravityController::tick(double timeInterval,b2Body *body)
 {
     this->setVelocity(Vector(0,0));
     this->addAcceleration(m_gravityDeltaV);
-    Controller::tick(timeInterval);
+    Controller::tick(timeInterval,body);
 }

@@ -15,7 +15,7 @@ class KeyController : public Controller
         KeyController(const KeyController &controller);
         virtual ~KeyController();
 
-        virtual void tick(double timeInterval);
+        virtual void tick(double timeInterval,b2Body *body);
 
     protected:
         //void handleKeyEvent(sf::Event &event);

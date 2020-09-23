@@ -10,7 +10,13 @@ Copy the downloaded SFML-folder to this Repo.
 Open QT and build SFML using:
 File->open file or project, navigate to: SFML-2.5.1/CMakeLists.txt
 Select your compiler and change the Build output path to: 
-... GameEngine/SFML-2.5.1/bin/Release
-... GameEngine/SFML-2.5.1/bin/Debug
+... GameEngine/extern/SFML-2.5.1/bin/Release
+... GameEngine/extern/SFML-2.5.1/bin/Debug
 
 Build the debug and release Version.
+
+-----
+Also you have to download Box2D: https://github.com/erincatto/box2d
+Compile it like SFML, but in the folder: 
+... GameEngine/extern/box2d/bin/Release
+... GameEngine/extern/box2d/bin/Debug

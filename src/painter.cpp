@@ -55,7 +55,7 @@ void Painter::loadFromFile(const std::string &texturePath)
 }
 void Painter::draw(sf::RenderWindow *window,Vector drawPos)
 {
-    m_sprite->setPosition(drawPos.getX(), drawPos.getY());
+    m_sprite->setPosition(drawPos.getX(), -drawPos.getY());
     sf::Vector2u windwoSize = window->getSize();
     m_sprite->setScale((m_size.getX()/m_texture->getSize().x)/**(double)windwoSize.y/(double)windwoSize.x*/,
                        (m_size.getY()/m_texture->getSize().y)/**(double)windwoSize.x/(double)windwoSize.y*/);

@@ -11,6 +11,7 @@
 #include "vectorFunction.h"
 
 #include "gameObject.h"
+#include "box2d/box2d.h"
 
 #include <QDebug>
 
@@ -25,6 +26,7 @@ class GameEngine
 
         static void user_loop();        // is called as often as possible
         static void user_tickLoop();    // is called once a tick (before the engine calculates the next tick)
+        static void user_displayLoop();
         static void user_loop_timer_1();// is called depending on its time
         static void user_loop_timer_2();// ...
         static void user_loop_timer_3();// ...
@@ -94,5 +96,12 @@ class GameEngine
         unsigned long long m_currentTick;
 
 
+        b2Vec2 *m_gravity;
+        b2World *m_world;
+       /* b2BodyDef m_groundBodyDef;
+        b2Body* m_groundBody;
+        b2PolygonShape m_groundBox;*/
+        int32 m_velocityIterations;
+        int32 m_positionIterations;
 };
 #endif

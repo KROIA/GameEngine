@@ -9,6 +9,7 @@ GameObject::GameObject()
 
     this->setStatic(false);
     this->setSize(50,50);
+    this->setDensity(0.01);
 }
 GameObject::~GameObject()
 {
@@ -51,7 +52,7 @@ void GameObject::move(double timeInterval)
     for(size_t i = 0; i < m_controllerList.size(); i++)
     {
         Controller* controller = m_controllerList[i];
-        controller->tick(timeInterval);
+        controller->tick(timeInterval,m_body);
         vel += controller->getVelocity();
     }
     this->setVelocity(this->m_lastVelocity+vel);
@@ -126,6 +127,7 @@ bool GameObject::checkCollision(std::vector<GameObject*> others)
 }
 void GameObject::draw(sf::RenderWindow *window)
 {
+    m_pos = getPos();
     for(size_t i=0; i<m_painterList.size(); i++)
         m_painterList[i]->draw(window,m_pos);
 }
@@ -158,7 +160,11 @@ void GameObject::setPos(double x, double y)
 }
 Vector GameObject::getPos() const
 {
-    return m_pos;
+    Vector pos;
+    pos.setX(m_body->GetPosition().x-m_size.getX()/2);
+    pos.setY(m_body->GetPosition().y+m_size.getY()/2);
+    return pos;
+    //return m_pos;
 }
 void GameObject::setSize(Vector size)
 {
@@ -194,7 +200,52 @@ void GameObject::setVelocity(Vector vel)
     m_lastVelocity  = m_velocity;
     m_velocity      = vel;
 }
+Vector GameObject::getVelocity()
+{
+    b2Vec2 v = m_body->GetLinearVelocity();
+    Vector v1;
+    v1.setX(v.x);
+    v1.setY(v.y);
+    return v1;
+}
+void GameObject::setColor(sf::Color color)
+{
+    for(size_t i=0; i<m_painterList.size(); i++)
+    {
+        m_painterList[i]->setColor(color);
+    }
+}
 void GameObject::setStatic(bool enable)
 {
     m_isStatic = enable;
+}
+void GameObject::setDensity(double density)
+{
+    m_density = abs(density);
+    for(size_t i=0; i<m_controllerList.size(); i++)
+    {
+        m_controllerList[i]->setDensity(m_density);
+    }
+}
+void GameObject::createBody(b2World *world)
+{
+    m_bodyDef.type = b2_dynamicBody;
+    m_bodyDef.position.Set(m_pos.getX()+m_size.getX()/2, m_pos.getY()-m_size.getY()/2);
+    m_body = world->CreateBody(&m_bodyDef);
+    m_dynamicBox.SetAsBox(m_size.getX()/2, m_size.getY()/2);
+    if(m_isStatic)
+    {
+        m_fixtureDef.density = 0.0f;
+    }
+    else
+    {
+
+        m_fixtureDef.density = m_density;
+
+    }
+    m_fixtureDef.shape = &m_dynamicBox;
+    m_fixtureDef.friction = 0.00f;
+    m_body->CreateFixture(&m_fixtureDef);
+    m_body->SetGravityScale(0.001);
+
 }

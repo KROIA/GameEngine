@@ -19,9 +19,11 @@
 #include <QDebug>
 
 const std::string texturePath = "..\\..\\textures\\";
+std::vector<GameObject*> particleList;
 
-void generateObsticles(GameEngine *engine, unsigned int amount);
+void generateObsticles(GameEngine *engine, unsigned int amountX,unsigned int amountY);
 void generateGround(GameEngine *engine, unsigned int tiles);
+void generateWall(GameEngine *engine, unsigned int tiles,double posX,double posY,int size);
 void vectorTest();
 
 int main(int argc, char *argv[])
@@ -69,8 +71,8 @@ int main(int argc, char *argv[])
     qDebug() << "intersectionFactor2: \t"<<function2.getIntersectionFactor(function1);
     qDebug() << "angle: \t"<<Vector::radToDeg(Vector::getAngle(dir1,dir2));*/
 
-    vectorTest();
-    return 0;
+    //vectorTest();
+    //return 0;
 
     /*Vector vec(0,1);
     Vector vec2(0,1);
@@ -85,7 +87,7 @@ int main(int argc, char *argv[])
         //qDebug()<<vec2.getX()<<vec2.getY();
     }*/
 
-    sf::Vector2u windowSize(300,300);
+    sf::Vector2u windowSize(1200,800);
 
     GameEngine engine(windowSize.x,windowSize.y,"myEngine");
     //engine.setWindowSize(windowSize.x,windowSize.y);
@@ -95,7 +97,7 @@ int main(int argc, char *argv[])
                                                            sf::Keyboard::D,
                                                            sf::Keyboard::W,
                                                            sf::Keyboard::S);
-    GravityController *playerGravityController = new GravityController(9.81);
+   // GravityController *playerGravityController = new GravityController(9.81);
     CircleCollider *playerCollider = new CircleCollider();
     Painter *playerPainter = new Painter();
     playerPainter->loadFromFile(texturePath+"Player2.png");
@@ -107,23 +109,29 @@ int main(int argc, char *argv[])
     myPlayer->setPos(0,0);
     myPlayer->addPainter(playerPainter);
     myPlayer->setSize(50,50);
+    myPlayer->setDensity(1);
 
-    GameObject* block = new GameObject();
+    /*GameObject* block = new GameObject();
     block->addCollider(new CircleCollider());
     block->addPainter(new Painter());
     block->setPos(100,100);
 
-    engine.addGameObject(block);
+    engine.addGameObject(block);*/
 
 
 
-   //generateGround(&engine,50);
-   // generateObsticles(&engine,100);
+    generateGround(&engine,30);
+    generateObsticles(&engine,10,50);
+    generateWall(&engine, 100,0,windowSize.y,30);
+    generateWall(&engine, 100,windowSize.x-30,windowSize.y,30);
 
     engine.addGameObject(myPlayer);
 
-    engine.setTickInterval(0.05);
-    engine.setSimulationsTimeMultiplyer(5);
+    engine.setTickInterval(0.000);
+    engine.setSimulationsTimeMultiplyer(1);
+    engine.setDisplayInterval(0.05);
+    engine.set_userTimer_1_enable(true);
+    engine.set_userTimer_1(0.1);
     engine.start();
 
 
@@ -222,9 +230,26 @@ void GameEngine::user_tickLoop()
 {
     //qDebug() << " userTickLoop";
 }
+void GameEngine::user_displayLoop()
+{
+
+}
 void GameEngine::user_loop_timer_1()
 {
-   qDebug() << " user_loop_timer_1";
+    for(size_t i=0; i<particleList.size(); i++)
+    {
+        Vector vel = particleList[i]->getVelocity();
+        double speed = vel.getLength()*200;
+        double red = speed;
+        double blue = 255.f - speed;
+        if(red > 255)
+            red = 255;
+        if(blue > 255)
+            blue = 255;
+       // qDebug() << "speed: "<<speed;
+        particleList[i]->setColor(sf::Color(red,0,blue));
+    }
+   //qDebug() << " user_loop_timer_1";
 }
 void GameEngine::user_loop_timer_2()
 {
@@ -244,38 +269,91 @@ void GameEngine::user_loop_timer_5()
 }
 
 
-void generateObsticles(GameEngine *engine, unsigned int amount)
+void generateObsticles(GameEngine *engine, unsigned int amountX,unsigned int amountY)
 {
     Vector tileSize;
     sf::Vector2u windowSize = engine->getWindowSize();
-    tileSize.setX(30);
-    tileSize.setY(tileSize.getX());
-    for(unsigned int i=0; i<amount; i++)
+    double xOffset = 300;
+    double yOffset = 300;
+    double size = 6;
+    int counter = 0;
+    particleList.reserve(amountX*amountY);
+    for(unsigned int x=0; x<amountX; x++)
     {
-        RectCollider *collider = new RectCollider();
-        Painter *painter = new Painter;
-        painter->loadFromFile(texturePath+"Obsticle.png");
-        GravityController *controller = new GravityController(9.81);
+        for(unsigned int y=0; y<amountY; y++)
+        {
+            tileSize.setX(size);
+            tileSize.setY(tileSize.getX());
+            RectCollider *collider = new RectCollider();
+            Painter *painter = new Painter;
+           // painter->loadFromFile(texturePath+"Obsticle.png");
+            //GravityController *controller = new GravityController(9.81);
 
-        GameObject *obj = new GameObject();
-        obj->addController(controller);
-        obj->addCollider(collider);
-        obj->addPainter(painter);
-        obj->setPos(i*tileSize.getX(),windowSize.y-tileSize.getY());
-        obj->setSize(tileSize);
-        obj->setPos(rand()%windowSize.x,-(rand()%amount*10) + windowSize.y/2);
-        obj->setVelocity(Vector((rand()%3141)/(double)1000,(rand()%1000)/(double)10));
+            GameObject *obj = new GameObject();
+            //obj->addController(controller);
+            obj->addCollider(collider);
+            obj->addPainter(painter);
+            //obj->setPos(i*tileSize.getX(),windowSize.y-tileSize.getY());
+            obj->setSize(tileSize);
+            // obj->setPos(rand()%windowSize.x,(rand()%windowSize.y));
+            obj->setPos(xOffset+x*(size+1),-(yOffset+y*(size+1)));
+            //obj->setVelocity(Vector((rand()%3141)/(double)1000,(rand()%1000)/(double)10));
+            obj->setDensity(0.0001);
 
+            engine->addGameObject(obj);
+            particleList.push_back(obj);
+            counter++;
 
-        engine->addGameObject(obj);
+        }
     }
+
 }
 void generateGround(GameEngine *engine, unsigned int tiles)
 {
     Vector tileSize;
     sf::Vector2u windowSize = engine->getWindowSize();
-    tileSize.setX(windowSize.x/(double)tiles);
-    tileSize.setY(tileSize.getX());
+    //tileSize.setX(windowSize.x/(double)tiles);
+    tileSize.setX(windowSize.x);
+    tileSize.setY(windowSize.x/(double)tiles);
+    for(unsigned int i=0; i<1; i++)
+    {
+        CircleCollider *collider = new CircleCollider();
+        Painter *painter = new Painter;
+        painter->loadFromFile(texturePath+"Ground.png");
+
+        GameObject *obj = new GameObject();
+        obj->addCollider(collider);
+        obj->addPainter(painter);
+        obj->setPos(i*tileSize.getX(),-(windowSize.y-tileSize.getY()));
+        obj->setSize(tileSize);
+        obj->setStatic(true);
+
+
+        engine->addGameObject(obj);
+    }
+    for(unsigned int i=0; i<1; i++)
+    {
+        CircleCollider *collider = new CircleCollider();
+        Painter *painter = new Painter;
+        painter->loadFromFile(texturePath+"Ground.png");
+
+        GameObject *obj = new GameObject();
+        obj->addCollider(collider);
+        obj->addPainter(painter);
+        obj->setPos(i*tileSize.getX(),0);
+        obj->setSize(tileSize);
+        obj->setStatic(true);
+
+
+        engine->addGameObject(obj);
+    }
+}
+void generateWall(GameEngine *engine, unsigned int tiles,double posX,double posY,int size)
+{
+    Vector tileSize;
+    //tileSize.setX(windowSize.x/(double)tiles);
+    tileSize.setX(size);
+    tileSize.setY(size);
     for(unsigned int i=0; i<tiles; i++)
     {
         CircleCollider *collider = new CircleCollider();
@@ -285,7 +363,7 @@ void generateGround(GameEngine *engine, unsigned int tiles)
         GameObject *obj = new GameObject();
         obj->addCollider(collider);
         obj->addPainter(painter);
-        obj->setPos(i*tileSize.getX(),windowSize.y-tileSize.getY());
+        obj->setPos(posX,-(posY-(i+1)*size));
         obj->setSize(tileSize);
         obj->setStatic(true);
 
@@ -293,7 +371,6 @@ void generateGround(GameEngine *engine, unsigned int tiles)
         engine->addGameObject(obj);
     }
 }
-
 
 void vectorTest()
 {

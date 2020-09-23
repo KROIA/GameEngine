@@ -14,7 +14,7 @@ class GravityController : public Controller
         virtual void setForce(double force);
         virtual void setForceVector(Vector force);
 
-        virtual void tick(double timeInterval);
+        virtual void tick(double timeInterval,b2Body *body);
 
 
 

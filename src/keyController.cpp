@@ -12,10 +12,10 @@ KeyController::KeyController
     m_keyUp     = keyUp;
     m_keyDown   = keyDown;
 
-    m_leftMove  = Vector(Vector::degToRad(180),15);
-    m_rightMove = Vector(Vector::degToRad(0)  ,15);
-    m_upMove    = Vector(Vector::degToRad(270),15);
-    m_downMove  = Vector(Vector::degToRad(90) ,15);
+    m_leftMove  = Vector(Vector::degToRad(180),100);
+    m_rightMove = Vector(Vector::degToRad(0)  ,100);
+    m_upMove    = Vector(Vector::degToRad(90), 100);
+    m_downMove  = Vector(Vector::degToRad(270),100);
 }
 KeyController::KeyController(const KeyController &controller)
     : Controller(controller)
@@ -35,29 +35,29 @@ KeyController::~KeyController()
     //qDebug()<<"~KeyController()";
 }
 
-void KeyController::tick(double timeInterval)
+void KeyController::tick(double timeInterval,b2Body *body)
 {
-    this->m_velocity *= 0.1;
+    //this->m_velocity *= 0.1;
     this->handleKeyPress(timeInterval);
-    Controller::tick(timeInterval);
+    Controller::tick(timeInterval,body);
 }
 
 void KeyController::handleKeyPress(double timeInterval)
 {
     if(sf::Keyboard::isKeyPressed(m_keyLeft))
     {
-        this->addVelocity(m_leftMove*timeInterval);
+        this->addVelocity(m_leftMove*timeInterval*m_density);
     }
     if(sf::Keyboard::isKeyPressed(m_keyRight))
     {
-        this->addVelocity(m_rightMove*timeInterval);
+        this->addVelocity(m_rightMove*timeInterval*m_density);
     }
     if(sf::Keyboard::isKeyPressed(m_keyUp))
     {
-        this->addVelocity(m_upMove*timeInterval);
+        this->addVelocity(m_upMove*timeInterval*m_density);
     }
     if(sf::Keyboard::isKeyPressed(m_keyDown))
     {
-        this->addVelocity(m_downMove*timeInterval);
+        this->addVelocity(m_downMove*timeInterval*m_density);
     }
 }
